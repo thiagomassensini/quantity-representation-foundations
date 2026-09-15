@@ -42,9 +42,9 @@ finite local observation as the earlier one. -/
 def LocalRecurrence
     {Q Local : Type*}
     (trajectory : UnitTrajectory Q)
-    (local : Q → Local)
+    (localReadout : Q → Local)
     (m n : ℕ) : Prop :=
-  m < n ∧ local (trajectory.state m) = local (trajectory.state n)
+  m < n ∧ localReadout (trajectory.state m) = localReadout (trajectory.state n)
 
 /--
 Every observation of an injective unit trajectory in a finite local state space
@@ -56,10 +56,10 @@ recurrence statement.
 theorem unitTrajectory_forces_localRecurrence
     {Q Local : Type*} [Finite Local]
     (trajectory : UnitTrajectory Q)
-    (local : Q → Local) :
-    ∃ m n, LocalRecurrence trajectory local m n := by
+    (localReadout : Q → Local) :
+    ∃ m n, LocalRecurrence trajectory localReadout m n := by
   obtain ⟨m, n, hne, heq⟩ :=
-    finiteState_forces_collision (fun k : ℕ => local (trajectory.state k))
+    finiteState_forces_collision (fun k : ℕ => localReadout (trajectory.state k))
   rcases lt_or_gt_of_ne hne with hlt | hgt
   · exact ⟨m, n, hlt, heq⟩
   · exact ⟨n, m, hgt, heq.symm⟩
@@ -71,9 +71,9 @@ distinct quantity states.
 theorem localRecurrence_states_ne
     {Q Local : Type*}
     (trajectory : UnitTrajectory Q)
-    (local : Q → Local)
+    (localReadout : Q → Local)
     {m n : ℕ}
-    (hrec : LocalRecurrence trajectory local m n) :
+    (hrec : LocalRecurrence trajectory localReadout m n) :
     trajectory.state m ≠ trajectory.state n := by
   exact trajectory.state_injective.ne (Nat.ne_of_lt hrec.1)
 
@@ -111,15 +111,15 @@ observation.
 theorem unitTrajectory_has_arbitrarily_late_localRecurrence
     {Q Local : Type*} [Finite Local]
     (trajectory : UnitTrajectory Q)
-    (local : Q → Local) :
+    (localReadout : Q → Local) :
     ∀ cutoff : ℕ,
       ∃ m n,
         cutoff ≤ m ∧
-        LocalRecurrence trajectory local m n := by
+        LocalRecurrence trajectory localReadout m n := by
   intro cutoff
   obtain ⟨a, b, hne, heq⟩ :=
     finiteState_forces_collision
-      (fun k : ℕ => local (trajectory.state (cutoff + k)))
+      (fun k : ℕ => localReadout (trajectory.state (cutoff + k)))
   rcases lt_or_gt_of_ne hne with hab | hba
   · refine ⟨cutoff + a, cutoff + b, Nat.le_add_right cutoff a, ?_, heq⟩
     omega
