@@ -350,7 +350,7 @@ Any $F:\Code_m\to\Code_k$ that preserves represented zero and commutes with exac
 
 Lean theorem: \lean{LosslessCompressedWindow.codeDepthProjectionLE_unique}.
 
-Existence and uniqueness are packaged by \lean{LosslessCompressedWindow.existsUnique_codeDepthProjectionLE}.
+Existence and uniqueness are packaged by the corresponding \lean{existsUnique_codeDepthProjectionLE} theorem.
 
 For arbitrary towers, Lean defines \lean{LosslessCompressedTower.forcedProjection} and proves:
 \begin{align*}
@@ -387,9 +387,11 @@ Lean theorem:
 The conclusion may be summarized as
 \[
 \boxed{
-\text{optimal lossless finite quantitative representation}
-\Longrightarrow
+\begin{gathered}
+\text{optimal lossless finite quantitative representation}\\
+\Longrightarrow\\
 \text{residual/carry projective dynamics up to change of coordinates}.
+\end{gathered}
 }
 \]
 
