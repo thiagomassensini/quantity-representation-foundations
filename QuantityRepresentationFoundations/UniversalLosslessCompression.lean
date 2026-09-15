@@ -5,10 +5,10 @@ import QuantityRepresentationFoundations.CarryGeometryNormalizationBridge
 
 This module isolates a representation-independent finite-window theorem.
 
-Fix a genuine capacity `b > 1` and a depth `k`.  There are exactly `b^k`
-distinguishable quantity states in the canonical depth-`k` window.  We do not
+Fix a genuine capacity `b > 1` and a depth `k`. There are exactly `b^k`
+distinguishable quantity states in the canonical depth-`k` window. We do not
 assume that an arbitrary compressed code for this window is positional, ordered,
-or digit-like.  Its code type may be completely opaque.
+or digit-like. Its code type may be completely opaque.
 
 The only hypotheses are:
 
@@ -17,14 +17,14 @@ The only hypotheses are:
 
 Finite cardinality then forces equality of state counts and hence bijectivity.
 Therefore every optimal lossless code is merely a change of coordinates of the
-canonical residual window.  Transporting unit successor through this forced
-equivalence gives the code's successor dynamics.  The wrap event in *every*
+canonical residual window. Transporting unit successor through this forced
+equivalence gives the code's successor dynamics. The wrap event in *every*
 such code is equivalent to the canonical depth-`k` carry event of
 `carry-geometry`.
 
 This theorem deliberately allows arbitrary recodings (permutations, Gray-like
-coordinates, etc.).  They are not counterexamples: they are conjugate
-coordinate systems on the same finite quantity dynamics.
+coordinates, etc.). They are not counterexamples: they are conjugate coordinate
+systems on the same finite quantity dynamics.
 -/
 
 namespace QuantityRepresentationFoundations
@@ -33,8 +33,8 @@ namespace QuantityRepresentationFoundations
 An arbitrary lossless compressed representation of a depth-`k`, base-`b`
 quantity window.
 
-`Code` carries no positional structure.  The budget says only that the code
-uses no more states than the `b^k` quantities that must remain distinguishable.
+`Code` carries no positional structure. The budget says only that the code uses
+no more states than the `b^k` quantities that must remain distinguishable.
 -/
 structure LosslessCompressedWindow
     (b k : ℕ) (Code : Type*) [Fintype Code] where
@@ -147,6 +147,22 @@ noncomputable def codeSuccessor
   rfl
 
 /--
+Any exact code-level realization of unit successor is forced to equal the
+transported successor.  There is no second exact successor dynamics hidden by
+an arbitrary lossless recoding.
+-/
+theorem codeSuccessor_unique
+    (rep : LosslessCompressedWindow b k Code)
+    (hb : 0 < b)
+    (step : Code → Code)
+    (hstep : ∀ n : Fin (b ^ k),
+      step (rep.encode n) = rep.encode (windowSuccessor b k hb n)) :
+    step = rep.codeSuccessor hb := by
+  funext c
+  obtain ⟨n, rfl⟩ := rep.encode_bijective.2 c
+  rw [hstep n, rep.codeSuccessor_encode hb n]
+
+/--
 Every optimal lossless code has a distinguished wrap event, namely the image of
 the canonical zero state. That code-level event is equivalent to the canonical
 arithmetic carry event, regardless of the code's coordinates.
@@ -166,6 +182,22 @@ theorem code_wrap_iff_carry
   · intro hcarry
     apply congrArg rep.encode
     exact (windowSuccessor_eq_zero_iff_carry b k hb n).2 hcarry
+
+/--
+Any exact unit-successor implementation on an optimal lossless code wraps
+exactly on the canonical carry event.
+-/
+theorem exact_successor_wrap_iff_carry
+    (rep : LosslessCompressedWindow b k Code)
+    (hb : 0 < b)
+    (step : Code → Code)
+    (hstep : ∀ n : Fin (b ^ k),
+      step (rep.encode n) = rep.encode (windowSuccessor b k hb n))
+    (n : Fin (b ^ k)) :
+    step (rep.encode n) = rep.encode (windowZero b k hb) ↔
+      CarryGeometry.carryAfterIncrementAtDepth b k n.val := by
+  rw [rep.codeSuccessor_unique hb step hstep]
+  exact rep.code_wrap_iff_carry hb n
 
 /--
 Canonical change of representation between any two optimal lossless codes for
