@@ -156,8 +156,8 @@ theorem any_lossless_kCell_code_forces_carry
           CarryGeometry.carryAfterIncrementAtDepth
             (Fintype.card Local) k n.val := by
   have h :=
-    (asLosslessCompressedWindow k encode faithful)
-      .universal_lossless_compression_forces_carry_conjugacy hLocal
+    LosslessCompressedWindow.universal_lossless_compression_forces_carry_conjugacy
+      (asLosslessCompressedWindow k encode faithful) hLocal
   exact ⟨h.2.1, h.2.2⟩
 
 /--
@@ -176,8 +176,8 @@ theorem any_exact_kCell_successor_is_forced
         (LosslessCompressedWindow.windowSuccessor
           (Fintype.card Local) k hLocal n)) :
     step = (asLosslessCompressedWindow k encode faithful).codeSuccessor hLocal :=
-  (asLosslessCompressedWindow k encode faithful)
-    .codeSuccessor_unique hLocal step hstep
+  LosslessCompressedWindow.codeSuccessor_unique
+    (asLosslessCompressedWindow k encode faithful) hLocal step hstep
 
 end LocalWord
 
