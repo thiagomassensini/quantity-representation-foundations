@@ -129,7 +129,11 @@ theorem existsUnique_cycleCoordinates
   intro coordinates hcoordinates
   rcases coordinates with ⟨q', r'⟩
   obtain ⟨hq, hr⟩ := cycleDecomposition_unique hcoordinates hqr
-  rw [hq, hr]
+  change q' = q at hq
+  change r' = r at hr
+  cases hq
+  cases hr
+  rfl
 
 /--
 An emergent local capacity supplies the positivity needed for the unique cycle
