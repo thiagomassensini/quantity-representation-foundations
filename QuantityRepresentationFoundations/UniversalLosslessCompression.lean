@@ -182,7 +182,7 @@ noncomputable def changeOfRepresentation
     (right : LosslessCompressedWindow b k Code₂)
     (n : Fin (b ^ k)) :
     left.changeOfRepresentation right (left.encode n) = right.encode n := by
-  unfold changeOfRepresentation
+  change right.windowEquiv (left.windowEquiv.symm (left.encode n)) = right.encode n
   rw [left.windowEquiv_symm_encode n]
   rfl
 
