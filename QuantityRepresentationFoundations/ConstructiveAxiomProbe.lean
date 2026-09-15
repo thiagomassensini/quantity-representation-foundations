@@ -1,5 +1,5 @@
 import QuantityRepresentationFoundations.ConstructiveCarryRigidity
-import QuantityRepresentationFoundations.AxiomFreeCarryRigidity
+import QuantityRepresentationFoundations.AxiomFreeCarryRigidityCore
 
 namespace QuantityRepresentationFoundations.ConstructiveAxiomProbe
 
