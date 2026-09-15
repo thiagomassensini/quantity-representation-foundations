@@ -37,29 +37,28 @@ end QuantityRepresentationFoundations.ConstructiveAxiomProbe
 #print axioms QuantityRepresentationFoundations.ConstructiveAxiomProbe.TinyFin.left
 #print axioms QuantityRepresentationFoundations.ConstructiveAxiomProbe.TinyPow.left
 #print axioms QuantityRepresentationFoundations.ConstructiveAxiomProbe.TinyNatPow.left
-#print axioms QuantityRepresentationFoundations.ExplicitLosslessTower.explicit_lossless_tower_collapses_to_carry
 
-#print axioms QuantityRepresentationFoundations.AxiomFreeCarry.natPow_pos
 #print axioms QuantityRepresentationFoundations.AxiomFreeCarry.windowSuccessor_eq_zero_iff_carry
-#print axioms QuantityRepresentationFoundations.AxiomFreeCarry.windowSuccessor_mk_of_succ_lt
 #print axioms QuantityRepresentationFoundations.AxiomFreeCarry.natPow_dvd_of_le
-#print axioms QuantityRepresentationFoundations.AxiomFreeCarry.depthProjection_zero
 #print axioms QuantityRepresentationFoundations.AxiomFreeCarry.depthProjection_commutes_successor
-#print axioms QuantityRepresentationFoundations.AxiomFreeCarry.depthProjection_refl_pointwise
-#print axioms QuantityRepresentationFoundations.AxiomFreeCarry.depthProjection_comp
 #print axioms QuantityRepresentationFoundations.AxiomFreeCarry.depthProjection_unique_pointwise
-#print axioms QuantityRepresentationFoundations.AxiomFreeCarry.Window.encode_injective
-#print axioms QuantityRepresentationFoundations.AxiomFreeCarry.Window.successor_encode
-#print axioms QuantityRepresentationFoundations.AxiomFreeCarry.Window.wrap_iff_carry
-#print axioms QuantityRepresentationFoundations.AxiomFreeCarry.Window.exact_successor_unique_pointwise
-#print axioms QuantityRepresentationFoundations.AxiomFreeCarry.Window.projection_zero
-#print axioms QuantityRepresentationFoundations.AxiomFreeCarry.Window.projection_commutes_successor
-#print axioms QuantityRepresentationFoundations.AxiomFreeCarry.Window.projection_unique_pointwise
-#print axioms QuantityRepresentationFoundations.AxiomFreeCarry.Window.projection_refl_pointwise
-#print axioms QuantityRepresentationFoundations.AxiomFreeCarry.Window.projection_comp_pointwise
 #print axioms QuantityRepresentationFoundations.AxiomFreeCarry.Tower.collapses_to_carry
 
+#print axioms Nat.mod_eq
+#print axioms Nat.modCore_eq
+#print axioms Nat.modCore_eq_mod
+#print axioms Nat.mod_zero
+#print axioms Nat.mod_eq_of_lt
 #print axioms Nat.mod_mod_of_dvd
 #print axioms Nat.mod_add_mod
 #print axioms Nat.mod_eq_of_lt
-#print axioms Nat.lt_of_succ_lt
+
+#print axioms dvd_refl
+#print axioms dvd_mul_of_dvd_left
+#print axioms Nat.mul_assoc
+#print axioms Nat.mul_one
+#print axioms Nat.one_mul
+#print axioms Nat.le_antisymm
+#print axioms Nat.le_of_not_gt
+#print axioms Nat.succ_le_of_lt
+#print axioms Nat.not_le_of_gt
