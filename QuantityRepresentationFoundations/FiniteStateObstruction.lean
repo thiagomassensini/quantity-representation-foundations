@@ -1,5 +1,4 @@
-import Mathlib.Basic.Finite.Prod
-import Mathlib.Data.Fintype.Pigeonhole
+import Mathlib
 
 /-!
 # Finite-state obstruction to faithful quantity representation
