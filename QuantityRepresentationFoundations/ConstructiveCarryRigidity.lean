@@ -6,7 +6,6 @@ open LosslessCompressedWindow
 
 universe u v
 
-/-- An optimal lossless finite code with an explicit encoder/decoder equivalence. -/
 structure ExplicitLosslessWindow (b k : ℕ) (Code : Type u) where
   equiv : Fin (b ^ k) ≃ Code
 
@@ -240,5 +239,12 @@ theorem explicit_lossless_tower_collapses_to_carry
       (tower.level m) (tower.level k) (tower.level j) hb0 hjk hkm c
 
 end ExplicitLosslessTower
+
+#print axioms ExplicitLosslessWindow.wrap_iff_carry
+#print axioms ExplicitLosslessWindow.exact_successor_unique_pointwise
+#print axioms ExplicitLosslessWindow.projection_unique_pointwise
+#print axioms ExplicitLosslessWindow.projection_refl_pointwise
+#print axioms ExplicitLosslessWindow.projection_comp_pointwise
+#print axioms ExplicitLosslessTower.explicit_lossless_tower_collapses_to_carry
 
 end QuantityRepresentationFoundations
