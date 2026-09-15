@@ -1,425 +1,331 @@
 # Quantity Representation Foundations
 
-Formal Lean 4 study of how quotient–remainder coordinates, carry, and canonical positional representation can arise from explicit structural requirements on faithful finite-local representations, instead of being postulated as primitive rules.
+Lean 4 formalization of a rigidity principle for exact quantitative representation:
 
-> **Guiding principle:** conserve quantitative distinguishability first; identify familiar arithmetic representations only downstream.
+> **Optimal lossless finite representation has no independent quantitative dynamics beyond the residual/carry tower, up to change of representation.**
 
-The current repository has reached a **formalized foundational capstone**.
+The repository contains two complementary formal programs:
 
-For the full theorem-by-theorem account, see [`FOUNDATIONAL_CAPSTONE.md`](FOUNDATIONAL_CAPSTONE.md).
+1. an **emergent construction route**, which builds quotient/remainder-like coordinates, carry transport, and canonical positional expansion from explicit structural hypotheses without postulating those objects;
+2. a **universal rigidity route**, which proves that arbitrary optimal lossless finite codes — including opaque recodings — are projectively equivalent to the canonical residual/carry dynamics.
+
+The current main result is the universal carry-collapse capstone.
+
+For the theorem-by-theorem account, see [`FOUNDATIONAL_CAPSTONE.md`](FOUNDATIONAL_CAPSTONE.md).
 
 ---
 
 ## Main theorem
 
-The capstone is implemented in [`FoundationalCapstone.lean`](QuantityRepresentationFoundations/FoundationalCapstone.lean).
+The capstone is implemented in:
+
+- [`QuantityRepresentationFoundations/UniversalCarryCollapseCapstone.lean`](QuantityRepresentationFoundations/UniversalCarryCollapseCapstone.lean)
 
 ```lean
-theorem existsUnique_foundationalCapstone
-    {Q LocalState Extension : Type*}
-    [Finite LocalState]
-    (system : FoundationalOperationalRepresentation Q LocalState Extension) :
-    ∃! b : ℕ, FoundationalCapstoneAt system b
+theorem universal_optimal_lossless_representation_collapses_to_carry
+    {b : ℕ}
+    (tower : LosslessCompressedTower b)
+    (hb : 1 < b) :
+    UniversalCarryCollapseCertificate tower (lt_trans Nat.zero_lt_one hb)
 ```
 
-The theorem deliberately does **not** say that arbitrary faithfulness alone forces positional notation.
+At depth `k`, the code type may be completely opaque. The finite-window assumptions are only:
 
-Instead, `FoundationalOperationalRepresentation` records the operational assumptions explicitly:
+```lean
+structure LosslessCompressedWindow
+    (b k : ℕ) (Code : Type*) [Fintype Code] where
+  encode : Fin (b ^ k) → Code
+  faithful : Function.Injective encode
+  state_budget : Fintype.card Code ≤ b ^ k
+```
 
-- an injective unit-step trajectory `ℕ → Q`;
-- a globally faithful split representation `Q → LocalState × Extension`;
-- finite local state;
-- autonomous local dynamics intertwined with the global unit step;
-- an injective local step, so local information is not erased;
-- agreement between the autonomous local observation and the local component of the faithful encoding;
-- a nontrivial first local step.
+No digit syntax, positional order, place value, quotient, remainder, native carry rule, or truncation rule is assumed on `Code`.
 
-No radix, quotient, remainder, division, modulo, digit list, positional normalization, or carry is part of this primitive system.
+From these hypotheses Lean forces:
 
-From these hypotheses Lean proves the existence of a **unique** emergent capacity `b`, and derives `1 < b` rather than assuming it separately.
+$$
+|Code_k| = b^k,
+$$
 
-At that same `b`, the capstone packages:
+so every encoder is bijective;
 
-- arbitrarily late local recurrence with compensating distinction in the extension component;
-- periodic local readout;
-- residual control of the local observation;
-- unique cycle-count/residual coordinates;
-- exact identification of those coordinates with Carry Geometry normalization;
-- a unique finite canonical positional representation of every external step count.
+$$
+Code_k \simeq \operatorname{Fin}(b^k),
+$$
+
+with exact unit successor conjugate to the canonical cyclic quantity successor;
+
+$$
+\text{wrap at depth }k
+\iff
+\operatorname{carryAfterIncrementAtDepth}(b,k,n);
+$$
+
+and, for every $k\le m$, a unique coherent projection
+
+$$
+\pi_{k,m}:Code_m\to Code_k
+$$
+
+which becomes
+
+$$
+\pi_{k,m}(n)=n\bmod b^k
+$$
+
+after changing coordinates.
+
+The projections satisfy
+
+$$
+\pi_{k,k}=\operatorname{id}
+$$
+
+and
+
+$$
+\pi_{j,k}\circ\pi_{k,m}=\pi_{j,m}.
+$$
+
+So the complete finite-depth hierarchy is forced up to representation equivalence.
 
 ---
 
-## Formal chain
+## What “collapse to carry” means
 
-The repository separates construction from later identification.
+The theorem does **not** say that every valid code must visibly look like ordinary base-$b$ digits.
+
+A Gray-like code, an arbitrary permutation of labels, or another opaque exact code may look completely different.
+
+What Lean proves is that these are changes of coordinates of the same quantitative object.
+
+At each depth:
+
+$$
+\boxed{Code_k \simeq \operatorname{Fin}(b^k).}
+$$
+
+The exact successor is conjugate to the canonical successor, the wrap event is exactly the carry event, and all cross-depth maps are the canonical residual projections after decoding and re-encoding.
+
+The invariant is therefore the **projective residual/carry dynamical system**, not a particular spelling of numerals.
+
+The direct comparison theorem is:
+
+```lean
+theorem any_two_optimal_lossless_towers_are_projectively_equivalent
+```
+
+It proves that any two arbitrary optimal lossless towers with the same finite capacity differ only by levelwise changes of representation preserving successor and every forced projection.
+
+---
+
+## Finite local cells
+
+For an arbitrary finite local state type `Local`, define a depth-`k` code as simply
+
+```lean
+abbrev LocalWord (Local : Type u) (k : ℕ) := Fin k → Local
+```
+
+No positional meaning is built into this type.
+
+Its cardinality is
+
+$$
+|\operatorname{LocalWord}(Local,k)| = |Local|^k.
+$$
+
+Writing
+
+$$
+b=|Local|,
+$$
+
+any faithful encoding of the $b^k$ distinguishable quantity states into `k` local cells is automatically bijective.
+
+The specialized capstone is:
+
+```lean
+theorem universal_finiteLocal_lossless_representation_collapses_to_carry
+    {Local : Type u} [Fintype Local]
+    (tower : LosslessFiniteLocalWordTower Local)
+    (hLocal : 1 < Fintype.card Local) :
+    UniversalCarryCollapseCertificate tower.toCompressedTower
+      (lt_trans Nat.zero_lt_one hLocal)
+```
+
+Thus the capacity/radix in this model is not supplied independently:
+
+$$
+\boxed{b=|Local|.}
+$$
+
+---
+
+## Universal rigidity chain
+
+The current universal theorem was built in four steps.
+
+```text
+arbitrary optimal lossless finite window
+        ↓
+exact cardinality is forced
+        ↓
+encoder is bijective
+        ↓
+exact successor is unique up to conjugacy
+        ↓
+wrap event is exactly carry
+        ↓
+all finite depths satisfy the same rigidity
+        ↓
+adjacent-depth projection is uniquely residual
+        ↓
+all k ≤ m projections are uniquely residual
+        ↓
+identity + projective composition laws
+        ↓
+UNIVERSAL CARRY-COLLAPSE CERTIFICATE
+```
+
+The corresponding modules are:
+
+- [`UniversalLosslessCompression.lean`](QuantityRepresentationFoundations/UniversalLosslessCompression.lean)
+- [`UniversalLosslessCompressionTower.lean`](QuantityRepresentationFoundations/UniversalLosslessCompressionTower.lean)
+- [`UniversalCrossDepthCarryCoherence.lean`](QuantityRepresentationFoundations/UniversalCrossDepthCarryCoherence.lean)
+- [`UniversalProjectiveCarryTower.lean`](QuantityRepresentationFoundations/UniversalProjectiveCarryTower.lean)
+- [`UniversalCarryCollapseCapstone.lean`](QuantityRepresentationFoundations/UniversalCarryCollapseCapstone.lean)
+
+---
+
+## Earlier emergent construction route
+
+The repository also contains a separate constructive route that begins upstream of quotient, remainder, carry, and digits.
+
+Its chain is:
 
 ```text
 faithful distinguishability
         ↓
 finite-state obstruction
         ↓
-information must escape finite local state
+information escape
         ↓
-no fixed finite tower of finite layers is enough
+unbounded distinguishing depth
         ↓
-arbitrarily deep distinguishing information
-        ↓
-canonical first distinguishing depth
-
-[explicit operational dynamics]
+unit-step dynamics
         ↓
 finite local recurrence
         ↓
-least positive local return
+emergent local capacity
         ↓
-unique nontrivial capacity b > 1
+unique cycle-count / residual coordinates
         ↓
-unique cycle count + residual position
+emergent quotient + remainder
         ↓
-recursive emergent quotient Q_b and remainder R_b
-        ↓
-boundary reset + one transported unit
+boundary reset + transported unit
         ↓
 carry
         ↓
-weighted transport between successive levels
-        ↓
-iterated transport
+weighted hierarchical transport
         ↓
 finite positional expansion
         ↓
-canonical emergent digit list
-        ↓
-intrinsic uniqueness of canonical positional representation
+intrinsic uniqueness of canonical digits
 ```
 
-Only **after** those objects are constructed do the classical crosswalks appear:
+Important modules include:
 
-\[
-Q_b(n)=n/b,
-\qquad
-R_b(n)=n\bmod b,
-\]
+- [`FiniteStateObstruction.lean`](QuantityRepresentationFoundations/FiniteStateObstruction.lean)
+- [`InformationEscape.lean`](QuantityRepresentationFoundations/InformationEscape.lean)
+- [`UnboundedPrefixDepth.lean`](QuantityRepresentationFoundations/UnboundedPrefixDepth.lean)
+- [`FirstDistinguishingDepth.lean`](QuantityRepresentationFoundations/FirstDistinguishingDepth.lean)
+- [`FirstLocalReturnCapacity.lean`](QuantityRepresentationFoundations/FirstLocalReturnCapacity.lean)
+- [`EmergentCycleDecomposition.lean`](QuantityRepresentationFoundations/EmergentCycleDecomposition.lean)
+- [`EmergentQuotientRemainder.lean`](QuantityRepresentationFoundations/EmergentQuotientRemainder.lean)
+- [`CarryGeometryNormalizationBridge.lean`](QuantityRepresentationFoundations/CarryGeometryNormalizationBridge.lean)
+- [`EmergentWeightedPositionalTransport.lean`](QuantityRepresentationFoundations/EmergentWeightedPositionalTransport.lean)
+- [`IteratedEmergentPositionalExpansion.lean`](QuantityRepresentationFoundations/IteratedEmergentPositionalExpansion.lean)
+- [`CanonicalEmergentDigits.lean`](QuantityRepresentationFoundations/CanonicalEmergentDigits.lean)
+- [`IntrinsicPositionalUniqueness.lean`](QuantityRepresentationFoundations/IntrinsicPositionalUniqueness.lean)
+- [`FoundationalCapstone.lean`](QuantityRepresentationFoundations/FoundationalCapstone.lean)
 
-and
-
-\[
-\operatorname{emergentDigits}_b(n)=\operatorname{Nat.digits}_b(n).
-\]
-
-This ordering is the main non-circularity invariant of the project.
+That route remains useful because it explains how familiar arithmetic structure can be constructed rather than assumed. The universal rigidity branch answers the stronger invariance question: arbitrary optimal lossless recodings do not create a different quantitative mechanics.
 
 ---
 
-## The pre-positional obstruction layer
+## Connection to Carry Geometry
 
-The first theorem assumes no arithmetic structure at all:
+This repository depends on [`carry-geometry`](https://github.com/thiagomassensini/carry-geometry).
 
-```lean
-def FaithfulRepresentation {Q S : Type*} (encode : Q → S) : Prop :=
-  Function.Injective encode
-```
-
-Then:
+The constructive route proves that its emergent coordinates coincide with Carry Geometry normalization:
 
 ```lean
-theorem finiteState_obstructs_faithfulRepresentation
+theorem emergentCoordinates_are_carryGeometryNormalization
+
+theorem emergentRemainder_eq_normalizedDigit
+
+theorem emergentQuotient_eq_carryUnits
 ```
 
-proves that an infinite family of distinguishable states cannot be faithfully encoded into a finite state space.
+The universal route uses the finite-window bridge:
 
-The next modules establish:
+```lean
+theorem windowSuccessor_eq_zero_iff_carry
+```
 
-- [`InformationEscape.lean`](QuantityRepresentationFoundations/InformationEscape.lean): finite local collisions force distinguishing information into an extension component;
-- [`UnboundedExtension.lean`](QuantityRepresentationFoundations/UnboundedExtension.lean): the extension cannot remain finite, and fixed finite depth cannot suffice;
-- [`UnboundedPrefixDepth.lean`](QuantityRepresentationFoundations/UnboundedPrefixDepth.lean): distinguishing information exists beyond every finite prefix;
-- [`FirstDistinguishingDepth.lean`](QuantityRepresentationFoundations/FirstDistinguishingDepth.lean): every distinct faithfully represented layered pair has a unique first distinguishing depth, and such depths are unbounded.
+which proves that the canonical cyclic wrap event is exactly
 
-These are genuine pre-positional theorems: no base, quotient, remainder, digit, positional weight, or carry is used.
+```lean
+CarryGeometry.carryAfterIncrementAtDepth
+```
 
-### Important boundary
-
-The capstone does **not** currently derive `UnitTrajectory` or `AutonomousLocalDynamics` from the layered-depth theorems above.
-
-Those dynamic objects are explicit operational assumptions in the capstone system. This distinction is intentional and is documented in detail in [`FOUNDATIONAL_CAPSTONE.md`](FOUNDATIONAL_CAPSTONE.md).
+and then transports this invariant through arbitrary optimal lossless codes.
 
 ---
 
-## Emergent local capacity
+## Scope
 
-The dynamic branch begins with an abstract injective unit-step trajectory:
+The main universal theorem quantifies over `LosslessCompressedTower b`.
 
-```lean
-structure UnitTrajectory (Q : Type*) where
-  state : ℕ → Q
-  transition : Q → Q
-  evolves : ∀ n, state (n + 1) = transition (state n)
-  state_injective : Function.Injective state
-```
+At depth `k`, this means a faithful representation
 
-Here `ℕ` is an **external clock**. The abstract source type `Q` is not given natural-number arithmetic.
-
-Finite local observation forces recurrence. Adding autonomous, injective local dynamics yields a unique least positive return:
-
-```lean
-def EmergentLocalCapacity ...
-
-theorem existsUnique_emergentLocalCapacity
-```
-
-The capstone additionally requires that the first local step actually changes the local observation and proves:
-
-```lean
-theorem emergentLocalCapacity_gt_one_of_first_step_changes
-```
-
-so the resulting capacity is genuinely
-
-\[
-\boxed{1<b.}
-\]
-
----
-
-## Quotient and remainder are constructed before `/` and `%`
-
-For positive `b`, define a bounded cycle decomposition:
-
-```lean
-def IsCycleDecomposition (b n q r : ℕ) : Prop :=
-  n = q * b + r ∧ r < b
-```
-
-Existence and uniqueness are proved without using division or modulo.
-
-Then the project defines a recursive cycle machine:
-
-```lean
-def cycleCoordinatesRec ...
-def emergentQuotient ...
-def emergentRemainder ...
-```
+$$
+\operatorname{Fin}(b^k)\hookrightarrow Code_k
+$$
 
 with
 
-\[
-\boxed{
-n=Q_b(n)b+R_b(n),
-\qquad R_b(n)<b.
-}
-\]
+$$
+|Code_k|\le b^k.
+$$
 
-The successor dynamics has exactly two regimes:
+This is the formal notion of **optimal lossless finite compression** used by the theorem.
 
-- inside a cycle: the residual advances and the cycle count stays fixed;
-- at the boundary: the residual resets to zero and the cycle count increases by one.
-
-Only later does [`ClassicalQRCrosswalk.lean`](QuantityRepresentationFoundations/ClassicalQRCrosswalk.lean) prove
-
-\[
-Q_b(n)=n/b,
-\qquad
-R_b(n)=n\bmod b.
-\]
+Redundant codes with additional non-quantitative states fall outside that optimal budget. The theorem does not claim that redundant error-correcting structure disappears; it says that once redundant degrees of freedom are excluded, the exact quantitative dynamics and hierarchy are forced up to coordinates.
 
 ---
 
-## Carry emerges at the boundary
+## Audit
 
-The repository depends on [`carry-geometry`](https://github.com/thiagomassensini/carry-geometry) only after the emergent coordinates have already been constructed.
-
-[`CarryGeometryNormalizationBridge.lean`](QuantityRepresentationFoundations/CarryGeometryNormalizationBridge.lean) proves that the emergent coordinates satisfy Carry Geometry's bounded value-preserving normalization predicate. By uniqueness:
-
-\[
-\boxed{
-R_b(n)=\operatorname{normalizedDigit}(b,n)
-}
-\]
-
-and
-
-\[
-\boxed{
-Q_b(n)=\operatorname{carryUnits}(b,n).
-}
-\]
-
-At local saturation, one unit step gives exactly
-
-\[
-\boxed{
-R\mapsto0,
-\qquad
-Q\mapsto Q+1.
-}
-\]
-
-So, within the formal framework:
-
-> **carry is the positional manifestation of the dynamically forced local boundary transition.**
-
----
-
-## Hierarchical transport and finite positional expansion
-
-The weighted transport theorem is
-
-\[
-\boxed{
-a b^j=R_b(a)b^j+Q_b(a)b^{j+1}.}
-\]
-
-The current residual remains at level `j`; the completed-cycle count is transported to `j+1`.
-
-Iterating this gives an exact finite-depth identity with an explicit unresolved tail:
-
-\[
-\boxed{
-n=
-\sum_{i<k}r_i b^i
-+Q_b^{(k)}(n)b^k.
-}
-\]
-
-For `b > 1`, the project proves intrinsically that positive emergent quotients strictly decrease. Therefore the tail eventually reaches zero and a finite expansion exists:
-
-\[
-\boxed{
-n=\sum_{i<k}r_i b^i,
-\qquad r_i<b.
-}
-\]
-
-See:
-
-- [`EmergentWeightedPositionalTransport.lean`](QuantityRepresentationFoundations/EmergentWeightedPositionalTransport.lean)
-- [`IteratedEmergentPositionalExpansion.lean`](QuantityRepresentationFoundations/IteratedEmergentPositionalExpansion.lean)
-
----
-
-## Canonical emergent digits and intrinsic uniqueness
-
-The project defines its own finite little-endian digit list:
-
-```lean
-def emergentDigits (b : ℕ) (hb : 1 < b) (n : ℕ) : List ℕ := ...
-```
-
-Before comparing it with `Nat.digits`, Lean proves:
-
-- exact reconstruction of `n`;
-- every digit is `< b`;
-- no nonempty representation has a zero most-significant digit.
-
-The strongest intrinsic uniqueness theorem is:
-
-```lean
-theorem intrinsicCanonicalExpansion_eq_emergentDigits_of_value
-```
-
-Any admissible finite coefficient list with no leading zero is the emergent digit list of its own represented value.
-
-Consequently:
-
-```lean
-theorem existsUnique_intrinsicCanonicalExpansion
-```
-
-gives a unique canonical positional representation for every `n`.
-
-Only after that theorem does the repository identify it with the standard representation:
-
-\[
-\boxed{
-\operatorname{emergentDigits}_b(n)
-=
-\operatorname{Nat.digits}_b(n).
-}
-\]
-
-See:
-
-- [`CanonicalEmergentDigits.lean`](QuantityRepresentationFoundations/CanonicalEmergentDigits.lean)
-- [`IntrinsicPositionalUniqueness.lean`](QuantityRepresentationFoundations/IntrinsicPositionalUniqueness.lean)
-
----
-
-## What the capstone supports
-
-Under the explicit operational hypotheses, the formal development supports the statement:
-
-> A faithful nonrepeating unit-step representation with finite, autonomous, information-preserving local state is forced to have a unique nontrivial local capacity. Relative to that capacity, the external unit-step clock has unique cycle/residual coordinates; boundary saturation is carry normalization; iterated transport yields a finite positional expansion; and the canonical expansion is intrinsically unique.
-
-A compact slogan is:
-
-\[
-\boxed{
-\text{finite local capacity}
-+\text{faithful persistence}
-+\text{autonomous unit dynamics}
-\Longrightarrow
-\text{canonical positional structure}.
-}
-\]
-
-The hypotheses on the left are essential parts of the theorem statement.
-
----
-
-## What is not claimed
-
-The repository does **not** currently prove that:
-
-- every arbitrary injective coding is positional;
-- faithfulness alone implies positional notation;
-- the layered-depth theorems alone generate the dynamic hypotheses;
-- every finite local dynamics has capacity `> 1` without a nontriviality condition;
-- the abstract source type `Q` itself carries the arithmetic of `ℕ`.
-
-The current positional construction lives on the **external natural-number unit-step clock** of an injective trajectory in `Q`.
-
-These boundaries are part of the result, not caveats to be hidden.
-
----
-
-## Repository map
-
-The constructive path is organized as:
-
-1. `FiniteStateObstruction.lean`
-2. `InformationEscape.lean`
-3. `UnboundedExtension.lean`
-4. `UnboundedPrefixDepth.lean`
-5. `FirstDistinguishingDepth.lean`
-6. `UnitDynamicsLocalRecurrence.lean`
-7. `FirstLocalReturnCapacity.lean`
-8. `EmergentCycleDecomposition.lean`
-9. `EmergentQuotientRemainder.lean`
-10. `ClassicalQRCrosswalk.lean`
-11. `CarryGeometryNormalizationBridge.lean`
-12. `EmergentWeightedPositionalTransport.lean`
-13. `IteratedEmergentPositionalExpansion.lean`
-14. `CanonicalEmergentDigits.lean`
-15. `IntrinsicPositionalUniqueness.lean`
-16. `FoundationalCapstone.lean`
-
-The full kernel-facing theorem/axiom audit is in:
+The kernel audit surface is:
 
 - [`QuantityRepresentationFoundations/Audit.lean`](QuantityRepresentationFoundations/Audit.lean)
 
-The detailed mathematical narrative, exact theorem map, scope, and suggested article architecture are in:
+It includes the universal capstone theorems:
 
-- [`FOUNDATIONAL_CAPSTONE.md`](FOUNDATIONAL_CAPSTONE.md)
+```lean
+#print axioms QuantityRepresentationFoundations.universal_optimal_lossless_representation_collapses_to_carry
+#print axioms QuantityRepresentationFoundations.universal_finiteLocal_lossless_representation_collapses_to_carry
+#print axioms QuantityRepresentationFoundations.any_two_optimal_lossless_towers_are_projectively_equivalent
+```
 
 ---
 
-## Status
+## Paper
 
-**Foundational capstone formalized in Lean 4.**
+The `paper/` directory contains the manuscript infrastructure. The current paper predates the universal carry-collapse theorem and is being replaced by a new manuscript based on the theorem above.
 
-The principal strengthening questions are now:
+See:
 
-1. Can the operational dynamic hypotheses be derived from weaker principles of representation and admissible change of representation?
-2. Can the construction be internalized on a quantity carrier more abstract than the external `ℕ` clock?
-3. Which capstone hypotheses can be weakened without losing the forced positional structure?
-4. How broadly does conservation of distinguishable quantitative information generalize beyond ordinary positional representation?
+- [`paper/README.md`](paper/README.md)
