@@ -68,14 +68,18 @@ theorem rawExpansionValue_emergentDigits
   | h n ih =>
       by_cases hn : n = 0
       · subst n
-        simp [CarryGeometry.rawExpansionValue, emergentDigits]
+        simp [CarryGeometry.rawExpansionValue]
       · have hnpos : 0 < n := Nat.pos_of_ne_zero hn
         have hq_lt : emergentQuotient b n < n :=
           emergentQuotient_lt_self b n hb hnpos
         have ihq := ih (emergentQuotient b n) hq_lt
+        have ihq' :
+            Nat.ofDigits b (emergentDigits b hb (emergentQuotient b n)) =
+              emergentQuotient b n := by
+          simpa [CarryGeometry.rawExpansionValue] using ihq
         rw [emergentDigits_of_pos b n hb hnpos]
         simp only [CarryGeometry.rawExpansionValue, Nat.ofDigits]
-        rw [ihq]
+        rw [ihq']
         simpa [Nat.mul_comm, Nat.add_comm] using
           (emergent_decomposition_value b n hb0).symm
 
@@ -117,18 +121,23 @@ theorem emergentDigits_getLast_ne_zero
           rw [hq, hr] at hvalue
           simp at hvalue
           exact hn hvalue
-        have htail : emergentDigits b hb (emergentQuotient b n) = [] := by
-          rw [hq, emergentDigits_zero]
-        rw [emergentDigits_of_pos b n hb hnpos]
-        rw [htail]
-        simpa using hrne
+        have hlast :
+            (emergentDigits b hb n).getLast
+                ((emergentDigits_ne_nil_iff_ne_zero b n hb).2 hn) =
+              emergentRemainder b n := by
+          simp [emergentDigits_of_pos b n hb hnpos, hq]
+        simpa [hlast] using hrne
       · have htailne :
             emergentDigits b hb (emergentQuotient b n) ≠ [] :=
           (emergentDigits_ne_nil_iff_ne_zero b (emergentQuotient b n) hb).2 hq
         have ihlast := ih (emergentQuotient b n) hq_lt hq
-        rw [emergentDigits_of_pos b n hb hnpos]
-        rw [List.getLast_cons htailne]
-        exact ihlast
+        have hlast :
+            (emergentDigits b hb n).getLast
+                ((emergentDigits_ne_nil_iff_ne_zero b n hb).2 hn) =
+              (emergentDigits b hb (emergentQuotient b n)).getLast
+                ((emergentDigits_ne_nil_iff_ne_zero b (emergentQuotient b n) hb).2 hq) := by
+          simp [emergentDigits_of_pos b n hb hnpos, htailne]
+        simpa [hlast] using ihlast
 
 /-- A nonempty emergent digit list has no zero in its most significant position. -/
 theorem emergentDigits_no_leading_zero
