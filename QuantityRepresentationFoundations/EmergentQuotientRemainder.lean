@@ -84,6 +84,10 @@ theorem cycleCoordinatesRec_isCycleDecomposition
             ((cycleCoordinatesRec b n).1,
               (cycleCoordinatesRec b n).2 + 1) by
           simp [nextCycleCoordinates, hnext]]
+        change Nat.succ n =
+            (cycleCoordinatesRec b n).1 * b +
+              ((cycleCoordinatesRec b n).2 + 1) ∧
+          (cycleCoordinatesRec b n).2 + 1 < b
         constructor
         · omega
         · exact hnext
@@ -95,14 +99,11 @@ theorem cycleCoordinatesRec_isCycleDecomposition
         rw [show nextCycleCoordinates b (cycleCoordinatesRec b n) =
             ((cycleCoordinatesRec b n).1 + 1, 0) by
           simp [nextCycleCoordinates, hnext]]
+        change Nat.succ n =
+            ((cycleCoordinatesRec b n).1 + 1) * b + 0 ∧ 0 < b
         constructor
-        · calc
-            Nat.succ n = n + 1 := by omega
-            _ = ((cycleCoordinatesRec b n).1 * b +
-                (cycleCoordinatesRec b n).2) + 1 := by rw [hvalue]
-            _ = (cycleCoordinatesRec b n).1 * b + b := by omega
-            _ = ((cycleCoordinatesRec b n).1 + 1) * b + 0 := by
-              simp [Nat.add_mul]
+        · rw [Nat.add_mul, Nat.one_mul]
+          omega
         · exact hb
 
 /--
@@ -147,8 +148,14 @@ theorem emergent_step_inside_cycle
     (hnext : emergentRemainder b n + 1 < b) :
     emergentQuotient b (n + 1) = emergentQuotient b n ∧
       emergentRemainder b (n + 1) = emergentRemainder b n + 1 := by
-  simp [emergentQuotient, emergentRemainder, cycleCoordinatesRec,
-    nextCycleCoordinates, hnext]
+  have hnext' : (cycleCoordinatesRec b n).2 + 1 < b := by
+    simpa [emergentRemainder] using hnext
+  change
+    (nextCycleCoordinates b (cycleCoordinatesRec b n)).1 =
+        (cycleCoordinatesRec b n).1 ∧
+      (nextCycleCoordinates b (cycleCoordinatesRec b n)).2 =
+        (cycleCoordinatesRec b n).2 + 1
+  simp [nextCycleCoordinates, hnext']
 
 /--
 At the local boundary, one unit step completes exactly one cycle and resets the
@@ -160,8 +167,13 @@ theorem emergent_step_at_boundary
     emergentQuotient b (n + 1) = emergentQuotient b n + 1 ∧
       emergentRemainder b (n + 1) = 0 := by
   have hnot : ¬ emergentRemainder b n + 1 < b := by omega
-  simp [emergentQuotient, emergentRemainder, cycleCoordinatesRec,
-    nextCycleCoordinates, hnot]
+  have hnot' : ¬ (cycleCoordinatesRec b n).2 + 1 < b := by
+    simpa [emergentRemainder] using hnot
+  change
+    (nextCycleCoordinates b (cycleCoordinatesRec b n)).1 =
+        (cycleCoordinatesRec b n).1 + 1 ∧
+      (nextCycleCoordinates b (cycleCoordinatesRec b n)).2 = 0
+  simp [nextCycleCoordinates, hnot']
 
 /--
 For a positive capacity, every successor step is forced into exactly one of the
