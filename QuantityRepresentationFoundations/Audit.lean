@@ -5,6 +5,8 @@ import QuantityRepresentationFoundations
 
 The first public results are intentionally free of quotient, remainder,
 positional, and carry primitives.  These commands expose their logical axioms.
+Later crosswalk theorems are also audited, but they only identify independently
+constructed emergent coordinates with the standard Euclidean operations.
 -/
 
 #print axioms QuantityRepresentationFoundations.finiteState_obstructs_faithfulRepresentation
@@ -52,3 +54,10 @@ positional, and carry primitives.  These commands expose their logical axioms.
 #print axioms QuantityRepresentationFoundations.emergent_step_dichotomy
 #print axioms QuantityRepresentationFoundations.emergentLocalCapacity_quotientRemainder_spec
 #print axioms QuantityRepresentationFoundations.emergentRemainder_controls_localReadout
+#print axioms QuantityRepresentationFoundations.classicalQuotientRemainder_isCycleDecomposition
+#print axioms QuantityRepresentationFoundations.emergentQuotient_eq_div
+#print axioms QuantityRepresentationFoundations.emergentRemainder_eq_mod
+#print axioms QuantityRepresentationFoundations.cycleCoordinatesRec_eq_classicalQuotientRemainder
+#print axioms QuantityRepresentationFoundations.emergentQuotientRemainder_eq_classical
+#print axioms QuantityRepresentationFoundations.emergentLocalCapacity_eq_classicalQuotientRemainder
+#print axioms QuantityRepresentationFoundations.classicalRemainder_controls_emergentLocalReadout
