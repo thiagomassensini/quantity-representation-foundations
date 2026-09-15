@@ -83,68 +83,57 @@ theorem intrinsicCanonicalExpansion_eq_emergentDigits
     (hleading : ∀ h : coefficients ≠ [], coefficients.getLast h ≠ 0) :
     coefficients = emergentDigits b hb n := by
   have hb0 : 0 < b := lt_trans Nat.zero_lt_one hb
-  have aux : ∀ m : ℕ, ∀ coefficients : List ℕ,
-      CarryGeometry.rawExpansionValue b coefficients = m →
-      (∀ digit ∈ coefficients,
-        CarryGeometry.IsAdmissibleDigit b digit) →
-      (∀ h : coefficients ≠ [], coefficients.getLast h ≠ 0) →
-      coefficients = emergentDigits b hb m := by
-    intro m
-    induction m using Nat.strong_induction_on with
-    | h m ih =>
-        intro coefficients hvalue hdigits hleading
-        by_cases hm : m = 0
-        · subst m
-          have hnil := canonicalExpansion_eq_nil_of_value_zero
-            b hb coefficients hvalue hdigits hleading
-          subst coefficients
-          simp
-        · have hmpos : 0 < m := Nat.pos_of_ne_zero hm
-          cases coefficients with
-          | nil =>
-              simp [CarryGeometry.rawExpansionValue] at hvalue
-              exact (hm hvalue.symm).elim
-          | cons d tail =>
-              have hd : d < b := hdigits d (by simp)
-              have htaildigits : ∀ digit ∈ tail,
-                  CarryGeometry.IsAdmissibleDigit b digit := by
-                intro digit hdigit
-                exact hdigits digit (List.mem_cons_of_mem d hdigit)
-              have htailleading : ∀ htail : tail ≠ [], tail.getLast htail ≠ 0 := by
-                intro htail
-                have hcons : d :: tail ≠ [] := by simp
-                have hlead := hleading hcons
-                simpa [List.getLast_cons htail] using hlead
-              have hsplit :
-                  m = CarryGeometry.rawExpansionValue b tail * b + d := by
-                calc
-                  m = CarryGeometry.rawExpansionValue b (d :: tail) := hvalue.symm
-                  _ = d + b * CarryGeometry.rawExpansionValue b tail := by
-                    rfl
-                  _ = CarryGeometry.rawExpansionValue b tail * b + d := by
-                    ac_rfl
-              have hdecomp : IsCycleDecomposition b m
-                  (CarryGeometry.rawExpansionValue b tail) d :=
-                ⟨hsplit, hd⟩
-              have hcoords := cycleDecomposition_eq_emergent hb0 hdecomp
-              have htailvalue :
-                  CarryGeometry.rawExpansionValue b tail = emergentQuotient b m :=
-                hcoords.1
-              have hdigit : d = emergentRemainder b m := hcoords.2
-              have hq_lt : emergentQuotient b m < m :=
-                emergentQuotient_lt_self b m hb hmpos
-              have htailcanonical :
-                  tail = emergentDigits b hb (emergentQuotient b m) :=
-                ih (emergentQuotient b m) hq_lt tail
-                  htailvalue htaildigits htailleading
-              calc
-                d :: tail =
-                    emergentRemainder b m ::
-                      emergentDigits b hb (emergentQuotient b m) := by
-                  rw [hdigit, htailcanonical]
-                _ = emergentDigits b hb m :=
-                  (emergentDigits_of_pos b m hb hmpos).symm
-  exact aux n coefficients hvalue hdigits hleading
+  induction coefficients generalizing n with
+  | nil =>
+      have hn0 : n = 0 := by
+        simpa [CarryGeometry.rawExpansionValue] using hvalue.symm
+      subst n
+      simp
+  | cons d tail ih =>
+      have hn : n ≠ 0 := by
+        intro hn0
+        subst n
+        have hnil := canonicalExpansion_eq_nil_of_value_zero
+          b hb (d :: tail) hvalue hdigits hleading
+        simp at hnil
+      have hnpos : 0 < n := Nat.pos_of_ne_zero hn
+      have hd : d < b := hdigits d (by simp)
+      have htaildigits : ∀ digit ∈ tail,
+          CarryGeometry.IsAdmissibleDigit b digit := by
+        intro digit hdigit
+        exact hdigits digit (List.mem_cons_of_mem d hdigit)
+      have htailleading : ∀ htail : tail ≠ [], tail.getLast htail ≠ 0 := by
+        intro htail
+        have hcons : d :: tail ≠ [] := by simp
+        have hlead := hleading hcons
+        simpa [List.getLast_cons htail] using hlead
+      have hsplit :
+          n = CarryGeometry.rawExpansionValue b tail * b + d := by
+        calc
+          n = CarryGeometry.rawExpansionValue b (d :: tail) := hvalue.symm
+          _ = d + b * CarryGeometry.rawExpansionValue b tail := by
+            rfl
+          _ = CarryGeometry.rawExpansionValue b tail * b + d := by
+            ac_rfl
+      have hdecomp : IsCycleDecomposition b n
+          (CarryGeometry.rawExpansionValue b tail) d :=
+        ⟨hsplit, hd⟩
+      have hcoords := cycleDecomposition_eq_emergent hb0 hdecomp
+      have htailvalue :
+          CarryGeometry.rawExpansionValue b tail = emergentQuotient b n :=
+        hcoords.1
+      have hdigit : d = emergentRemainder b n := hcoords.2
+      have htailcanonical :
+          tail = emergentDigits b hb (emergentQuotient b n) :=
+        ih (emergentQuotient b n)
+          htailvalue htaildigits htailleading
+      calc
+        d :: tail =
+            emergentRemainder b n ::
+              emergentDigits b hb (emergentQuotient b n) := by
+          rw [hdigit, htailcanonical]
+        _ = emergentDigits b hb n :=
+          (emergentDigits_of_pos b n hb hnpos).symm
 
 /--
 The intrinsic conditions characterize the emergent list uniquely.
