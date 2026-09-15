@@ -1,0 +1,51 @@
+name: Publish v1.0.0
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'CITATION.cff'
+      - '.zenodo.json'
+      - 'RELEASE_NOTES_v1.0.0.md'
+      - '.github/workflows/publish-v1.0.0.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout release commit
+        uses: actions/checkout@v4
+
+      - name: Compile preprint PDF
+        uses: xu-cheng/latex-action@v4
+        with:
+          working_directory: paper
+          root_file: CONSERVATION_OF_QUANTITATIVE_INFORMATION.tex
+          latexmk_use_lualatex: false
+
+      - name: Publish tagged research release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          if gh release view v1.0.0 >/dev/null 2>&1; then
+            echo 'Release v1.0.0 already exists; nothing to do.'
+            exit 0
+          fi
+
+          gh release create v1.0.0 \
+            paper/CONSERVATION_OF_QUANTITATIVE_INFORMATION.pdf \
+            paper/CONSERVATION_OF_QUANTITATIVE_INFORMATION.tex \
+            paper/CONSERVATION_OF_QUANTITATIVE_INFORMATION.md \
+            paper/LITERATURE_REVIEW.md \
+            FOUNDATIONAL_CAPSTONE.md \
+            CITATION.cff \
+            .zenodo.json \
+            --target "${GITHUB_SHA}" \
+            --title 'v1.0.0 — Universal Carry Rigidity of Optimal Lossless Finite Quantity Codes' \
+            --notes-file RELEASE_NOTES_v1.0.0.md \
+            --latest
