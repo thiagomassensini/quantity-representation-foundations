@@ -1,244 +1,272 @@
-# Literature review for the foundational capstone
+# Literature review for the universal carry-collapse theorem
 
-## Scope of this review
+## Scope
 
-This document is a scoped literature review for the manuscript **Conservation of Quantitative Information under Change of Representation**. Its purpose is not to claim an exhaustive priority search. It asks a narrower question:
+This review supports the manuscript **Conservation of Quantitative Information under Change of Representation** after the universal carry-collapse theorem replaced the earlier operational capstone as the repository's main result.
 
-> Which established research programs come closest to the formal implication proved in this repository, and where does the logical direction differ?
+The question is now:
 
-The comparison is organized around six neighboring literatures:
+> Which established theories already contain pieces of the residual/carry projective structure, and which of them prove that this structure is forced for an arbitrary optimal lossless finite code with no positional syntax assumed?
 
-1. number representation and finite automata;
-2. abstract numeration systems;
-3. canonical number systems and generalized radix representations;
-4. odometers and dynamical systems associated with numeration;
-5. carry propagation and successor dynamics;
+The review is deliberately scoped. It is not an exhaustive historical priority search.
+
+The closest neighboring areas are:
+
+1. numeration systems and finite automata;
+2. abstract and generalized numeration systems;
+3. canonical number systems;
+4. odometers / adding machines and inverse limits of cyclic factors;
+5. carry propagation of successor;
 6. information-lossless finite-state coding;
-7. period/enumeration principles that lead to positional equations.
+7. periodic enumeration and structural derivations of positional equations.
 
-The central comparison criterion is **what the prior work assumes before positional structure appears**.
+The comparison criterion is not whether the literature contains carry, successor, cyclic dynamics, or modulo projections. It does. The criterion is **what structure is assumed before those objects appear, and whether arbitrary optimal lossless recodings are proved rigid up to conjugacy and projective equivalence**.
 
 ---
 
-## 1. Number representation and finite automata
+## 1. Numeration systems and finite automata
 
-A major body of work initiated and developed by Christiane Frougny and collaborators studies normalization, arithmetic, and recognizability in already specified numeration systems. Frougny's 1992 paper studies numeration systems defined by linear recurrences and asks when normalization and addition can be realized by finite automata. Later surveys by Frougny and Sakarovitch place integer-base, real-base, canonical, rational-base, and automata/transducer viewpoints in a common framework.
+Frougny and collaborators developed a substantial theory of number representation, normalization, and arithmetic by finite automata and transducers. Representative sources include Frougny (1992), Frougny (1999), and the Frougny–Sakarovitch survey chapter (2010).
 
-Representative references:
+These works study arithmetic once a numeration architecture is already specified: an integer or non-integer base, a recurrence, a digit language, or a normalization relation.
 
-- Frougny (1992), *Representations of Numbers and Finite Automata*.
-- Frougny (1999), *On-line Finite Automata for Addition in Some Numeration Systems*.
-- Frougny and Sakarovitch (2010), *Number Representation and Finite Automata*.
+### Relation to the present theorem
 
-### Relation to the present project
+The overlap is real: finite-state representation, normalization, successor, and carry-like mechanisms all occur in this literature.
 
-The overlap is substantial at the level of mechanisms: finite-state dynamics, normalization, addition, and carry-like transport are central in both settings.
+The logical direction differs. The universal carry-collapse theorem starts with an arbitrary finite code type `Code` carrying no numeral syntax and assumes only:
 
-The logical starting point is different. This literature normally begins with a numeration architecture: a base or recurrence, an alphabet of digits, a language of representations, or a normalization problem. The present capstone instead begins with an abstract quantity type `Q`, an injective unit-step trajectory, a globally faithful split representation, and finite autonomous local dynamics. The radix-like capacity is not part of the primitive representation.
+- an injective encoding of the complete finite quantity window `Fin (b^k)`;
+- a state budget `|Code| ≤ b^k`.
 
-Therefore this literature is best described as **downstream-neighboring** rather than as a duplicate of the capstone theorem.
+Cardinality forces the encoding to be bijective, and exact successor is then unique up to conjugacy. No digit language is required.
+
+So this literature is a close downstream neighbor, not a duplicate theorem.
 
 ---
 
 ## 2. Abstract numeration systems
 
-Abstract numeration systems replace ordinary positional powers by representations given by words in an ordered language, often a regular language. The framework is particularly close conceptually because it separates the set of integers from a specific integer base and studies representations via formal languages and automata.
+Abstract numeration systems represent integers through words of an ordered language rather than through powers of a fixed radix. Lecomte–Rigo and Rigo survey a broad family of such systems.
 
-Representative references:
+The framework is more general than ordinary radix notation, but the representation language and its order are part of the input.
 
-- Lecomte and Rigo (2010), *Abstract Numeration Systems*.
-- Rigo (2014), *A Range of Numeration Systems*.
-- Rigo (2001) and related work on regular-language numeration systems.
+### Relation to the present theorem
 
-A characteristic feature is that the representation language is part of the system. Integers are mapped to words, commonly by genealogic or lexicographic ordering, and questions of recognizability, arithmetic, and automaticity are then studied.
+The universal carry-collapse theorem does not assume a language, lexicographic order, digit alphabet, or native representation of successor on words. The code can be an arbitrary finite type.
 
-### Relation to the present project
+Therefore the theorem is not a statement that all abstract numeration systems reduce syntactically to a fixed radix. Rather, it says that **when a complete finite quantitative window is encoded losslessly at optimal state count, the resulting finite successor dynamics is conjugate to the canonical cycle and its coherent depth reductions are forced residual maps**.
 
-Abstract numeration systems are broader than ordinary fixed-radix notation, but they still assume a representation language over a finite alphabet. By contrast, the foundational capstone does not begin with a word language, digit alphabet, lexicographic order, or representation map `N -> words`. It derives a finite cycle capacity first and then constructs the digit list recursively.
-
-The most important contrast is:
-
-- **ANS direction:** choose or define a language of representations, then study the induced numeration system;
-- **capstone direction:** impose faithful finite-local operational dynamics, derive a capacity and unique cycle/residual coordinates, then obtain a canonical positional language.
-
-The present theorem should therefore not be advertised as a replacement for abstract numeration systems. It is an upstream characterization result under a more specialized dynamic hypothesis.
+This is an invariant statement about exact finite quantitative compression, not a classification of all numeration languages.
 
 ---
 
 ## 3. Canonical number systems and generalized radix representations
 
-Canonical number systems (CNS) and related generalized radix systems study finite expansions in algebraic settings, frequently with a polynomial or algebraic base and a prescribed digit set. The characteristic questions are existence, uniqueness, finiteness of expansions, and structural criteria on the base.
+Canonical number systems and generalized radix systems study when a given algebraic base/digit architecture yields finite or unique representations. Representative sources include Akiyama–Pethő (2002) and the Akiyama–Borbély–Brunotte–Pethő–Thuswaldner survey (2004).
 
-Representative references:
+### Relation to the present theorem
 
-- Akiyama and Pethő (2002), *On Canonical Number Systems*.
-- Akiyama, Borbély, Brunotte, Pethő, and Thuswaldner (2004), *On a Generalization of the Radix Representation -- A Survey*.
+These theories typically begin with a radix-like object and digit set and ask whether representations are finite, canonical, or unique.
 
-### Relation to the present project
+The present universal theorem asks a different rigidity question. At a fixed finite depth, once the complete quantity window has exactly enough code capacity and no information loss, **any** code is a bijective coordinate system on the same finite quantitative state space. The theorem then determines the exact successor and cross-depth factor maps independently of how the code is spelled.
 
-The present manuscript eventually reaches a statement resembling the canonicality property: every external clock value has a unique finite expansion with bounded digits and no leading zero. However, CNS theory normally starts with a base/digit pair or polynomial and asks whether it has the finiteness/canonicality property.
-
-The capstone reverses this direction in its restricted operational setting. The finite capacity `b` is obtained as the unique least positive local return and only afterwards acts as the radix in the derived expansion.
-
-This distinction should be explicit in any novelty statement:
-
-> The contribution is not a new criterion for a pre-existing number system to be canonical; it is a theorem that a canonical fixed-capacity positional system appears from an explicit finite-local dynamic representation model.
+The result therefore concerns invariance under representation change rather than canonicality of a prescribed algebraic base.
 
 ---
 
-## 4. Numeration dynamics and odometers
+## 4. Odometers, adding machines, and inverse limits
 
-There is a long-established dynamical viewpoint on numeration. Grabner, Liardet, and Tichy introduced `G`-odometers associated with `G`-scale expansions. Barat, Berthé, Liardet, and Thuswaldner later surveyed numeration from a dynamical viewpoint, including beta-numeration, abstract systems, shift radix systems, `G`-scales, and odometers.
+Odometers are one of the closest mathematical neighbors of the final theorem. Grabner, Liardet, and Tichy (1995) study odometers associated with systems of numeration. Barat, Berthé, Liardet, and Thuswaldner (2006) survey dynamical approaches to numeration.
 
-Representative references:
+In the standard dynamical formulation, an odometer is built from finite cyclic factors whose connecting maps are residual reductions. For a constant capacity `b`, the familiar finite factors are cyclic systems of sizes
 
-- Grabner, Liardet, and Tichy (1995), *Odometers and Systems of Numeration*.
-- Barat, Berthé, Liardet, and Thuswaldner (2006), *Dynamical Directions in Numeration*.
+$$
+b,
+\quad b^2,
+\quad b^3,
+\quad \ldots
+$$
 
-These works are particularly relevant because the successor operation acts dynamically on digit expansions, and odometers are canonical models of repeated addition with carry propagation.
+with successor given by addition of one and factor maps given by reduction modulo lower powers.
 
-### Relation to the present project
+### Relation to the present theorem
 
-This is one of the closest conceptual neighborhoods, but the direction is again reversed.
+The repository's final projective object is precisely of this familiar odometer type after canonical coordinates are chosen:
 
-The `G`-odometer literature starts from a scale `G=(G_n)` and the corresponding expansion, then studies the dynamical system naturally associated with incrementing represented integers.
+$$
+\operatorname{Fin}(b^m)
+\longrightarrow
+\operatorname{Fin}(b^k),
+\qquad
+n\longmapsto n\bmod b^k.
+$$
 
-The capstone starts from unit-step dynamics on an abstract state space and finite autonomous local observation. It proves that the least positive local return is a unique capacity `b>1`, constructs cycle coordinates without division/modulo, and only then identifies the successor boundary event as carry.
+The distinction is the direction of the theorem.
 
-A concise comparison is:
+Classical odometer constructions **define** or study the inverse/projective system of cyclic factors. The universal carry-collapse theorem starts instead with arbitrary opaque finite code spaces at every depth. It proves that:
 
-> odometer theory: numeration -> successor dynamics;
->
-> foundational capstone: constrained successor dynamics -> positional numeration.
+- every code level is forced to be bijective with the canonical finite cycle;
+- every exact successor is forced to be the conjugated cyclic successor;
+- every zero-preserving successor-equivariant map between ordered depths is uniquely the conjugated residual map;
+- the identity and composition laws therefore follow for the arbitrary code tower.
 
-This reversal is likely one of the manuscript's most defensible conceptual contributions.
+Thus the theorem may be read as a **rigidity/recognition theorem for the finite projective odometer structure under optimal lossless quantitative coding**.
+
+The manuscript should not claim to discover odometers or inverse limits. The contribution is that this structure is forced from arbitrary optimal lossless finite representations, and the claim is machine-checked in Lean 4.
 
 ---
 
-## 5. Carry propagation
+## 5. Carry propagation of successor
 
-Carry is itself a mature research subject. Frougny studied on-line finite automata for addition in nonstandard numeration systems. Heuberger, Kropf, and Prodinger studied the statistics of carries in signed-digit representations. Berthé, Frougny, Rigo, and Sakarovitch studied amortized carry propagation for the successor function across several classes of numeration systems.
+Berthé, Frougny, Rigo, and Sakarovitch (2020) study carry propagation for the successor function across several kinds of numeration systems: ordinary, abstract, rational-base, greedy, and beta systems.
 
-Representative references:
+Their starting point is an existing numeration system with representations of integers. Carry propagation measures how representation digits change under `N → N+1`.
 
-- Frougny (1999), *On-line Finite Automata for Addition in Some Numeration Systems*.
-- Heuberger, Kropf, and Prodinger (2017), *Analysis of Carries in Signed Digit Expansions*.
-- Berthé, Frougny, Rigo, and Sakarovitch (2020), *The Carry Propagation of the Successor Function*.
+### Relation to the present theorem
 
-### Relation to the present project
+The repository proves an upstream invariance result. In the canonical finite window,
 
-The 2020 successor paper is especially close in vocabulary: it studies how many digits change when passing from the representation of `N` to that of `N+1`. But a numeration system and its representations already exist before carry propagation is measured.
+$$
+S_k(n)=0
+\iff
+n+1\equiv 0\pmod{b^k},
+$$
 
-The capstone isolates an earlier question:
+and `carry-geometry` identifies the right-hand side with `carryAfterIncrementAtDepth b k n`.
 
-> Why should the local successor dynamics acquire a carry boundary at all?
+Because every optimal lossless code is conjugate to the canonical finite window and every exact successor is unique, the wrap/carry event is invariant under arbitrary coordinate recoding.
 
-Within the explicit operational assumptions, the answer is that finite autonomous injective local dynamics yields a least positive return. Relative to that return, the recursive coordinates have only two successor regimes: advance inside the cycle, or reset the residual and increment the completed-cycle count. The latter is then identified with the usual carry normalization.
-
-Thus the paper should cite carry-propagation work as a direct downstream neighbor and state that it addresses **the emergence of the carry boundary**, not the asymptotic statistics of propagation after a numeration system is fixed.
+So carry-propagation theory asks what carry does inside given systems; the present theorem proves that the finite wrap event corresponding to carry cannot be removed by optimal lossless recoding.
 
 ---
 
 ## 6. Information-lossless finite-state coding
 
-Information theory and finite-state compression contain a closely related notion of faithfulness: an information-lossless finite-state compressor is required to preserve enough output/final-state information to reconstruct its input. Finite-state dimension characterizes compression ratios attainable by such information-lossless devices.
+Dai, Lathrop, Lutz, and Mayordomo (2004) characterize finite-state dimension through compression ratios achieved by information-lossless finite-state compressors. The shared theme is preservation of recoverable information under finite-state coding.
 
-Representative reference:
+### Relation to the present theorem
 
-- Dai, Lathrop, Lutz, and Mayordomo (2004), *Finite-State Dimension*.
+The present finite-window hypothesis is simpler and more rigid: the encoder itself is injective on a complete finite quantitative window, and the code has no more states than the number of distinct quantities being encoded.
 
-### Relation to the present project
+This immediately forces exact cardinality and bijectivity.
 
-The shared invariant is injectivity/recoverability. The present `FaithfulRepresentation` is intentionally even more primitive: it is simply injectivity of an encoding. The finite-state obstruction then says that an infinite source cannot inject into a finite state space.
+Finite-state dimension studies asymptotic compressibility of sequences; it does not, in the cited work, derive the residual/carry projective hierarchy. The useful conceptual connection is the invariance of distinguishability under lossless coding.
 
-However, finite-state compression theory does not, in the cited work, derive a positional numeral system from losslessness. Its goal is compression complexity of sequences. Therefore this literature supports the terminology of information preservation but should not be presented as a source of the positional conclusion.
-
-A safe formulation is:
-
-> The project uses a notion of faithfulness structurally analogous to information-losslessness, but asks a different question: what representational architecture is forced when a finite local state must participate in an unbounded, nonrepeating, information-preserving unit trajectory?
+The manuscript should therefore use information-lossless coding as conceptual context, not as a claim that the same theorem is already standard in compression theory.
 
 ---
 
-## 7. Periodic enumeration as a route to positional equations
+## 7. Periodic enumeration and positional equations
 
-Vincenzo Manca's 2024 paper *The Archimedean Origin of Modern Positional Number Systems* is an important close comparison. It studies monotone enumeration systems based on orders and periods and proves a base-representation recurrence of the form
+Manca (2024), *The Archimedean Origin of Modern Positional Number Systems*, is an important structural precedent. It derives a base-representation recurrence from an Archimedean monotone enumeration system with a period.
 
-`value(alpha x) = value(alpha) p + value(x)`,
+This is genuinely close because positional equations are obtained from periodic organization rather than merely postulated.
 
-from which the usual positional expansion follows by iteration.
+### Relation to the present theorem
 
-### Why this is genuinely close
+Manca's framework already contains:
 
-Both projects emphasize that periodic/cyclic structure can explain positional weighting rather than simply taking a positional formula as primitive.
+- strings over a finite symbol set;
+- a monotone enumeration;
+- a period;
+- an append operation on numeral strings.
 
-### Why the theorem is not the same
+The universal carry-collapse theorem does not start from a numeral language at all. Its main route is a finite rigidity theorem for arbitrary code spaces. The earlier constructive branch of this repository separately derives a local capacity before constructing cycle coordinates and canonical digits.
 
-Manca's Archimedean monotone enumeration system already assumes:
-
-- numerals as strings over a finite symbol set;
-- a period `p`;
-- an append-a-digit operation;
-- a monotone enumeration/order condition connecting strings to represented integers.
-
-The present capstone assumes none of those as primitive. Its local capacity `b` is derived as a least positive return in finite autonomous injective local dynamics; the digit/residual coordinate is constructed afterwards; and the positional list is obtained by iterating the emergent quotient.
-
-Accordingly, Manca should be presented not as something to dismiss but as **the closest known structural precedent found in this scoped review for deriving a positional equation from periodic organization**. The manuscript's distinct step is moving the period itself downstream, deriving it from finite-local operational dynamics.
+Manca therefore remains an important comparison, but the new universal theorem is best distinguished by **representation opacity and conjugacy/projective rigidity**, not by claiming that positional structure has never been derived from periodicity before.
 
 ---
 
 ## 8. Comparison matrix
 
-| Literature | Primitive structure already assumed | Typical conclusion | Relation to the capstone |
+| Literature | Structure assumed at input | Typical object/result | Difference from universal carry-collapse theorem |
 |---|---|---|---|
-| Frougny / automata | base or recurrence, digits/representations | normalization/addition computable by automata | downstream neighbor |
-| Abstract numeration systems | ordered language over finite alphabet | representation/recognizability/automaticity | broader representation language, but language assumed |
-| Canonical number systems | algebraic/polynomial base + digit set | finite/unique expansions | canonicality after base is given |
-| Odometers | `G`-scale and expansion | successor dynamics / dynamical properties | opposite logical direction |
-| Carry propagation | established numeration system | statistics/algorithms of carry propagation | studies carry after it exists |
-| Information-lossless finite-state coding | finite-state transducer + recoverability | compression/dimension | shares faithfulness, different target |
-| Manca 2024 | strings, finite symbols, monotone period `p` | base recurrence and positional formula | closest structural precedent; period assumed |
-| This repository | abstract `Q`, injective unit trajectory, faithful split representation, finite autonomous injective local dynamics, first-step nontriviality | unique `b>1`, QR-like cycle coordinates, carry boundary, finite canonical positional expansion | derives capacity before digits/base |
+| Frougny / automata | numeration system, base/recurrence, digit language | normalization and arithmetic transducers | code syntax/numeration architecture already specified |
+| Abstract numeration systems | ordered language over finite alphabet | integer representations and recognizability | representation language is primitive |
+| Canonical number systems | algebraic base + digit set | finite/unique expansions | radix architecture is primitive |
+| Odometers | cyclic factors and connecting maps / numeration scale | adding-machine dynamics, inverse limits | projective cyclic structure is constructed/assumed rather than forced from opaque codes |
+| Carry propagation | established numeration representations | statistics/dynamics of digit changes under successor | carry exists before analysis |
+| Information-lossless finite-state coding | finite-state compressor + recoverability | compression ratios / finite-state dimension | different target; no forced residual tower |
+| Manca 2024 | periodic monotone enumeration of numeral strings | base recurrence and positional equation | period and numeral language already explicit |
+| This repository | injective encoding of complete `b^k` window into arbitrary finite code with `|Code|≤b^k`, at all depths | forced bijection, unique successor, carry wrap, unique residual projections, projective equivalence | syntax-free rigidity theorem up to change of representation |
 
 ---
 
-## 9. What the literature supports us saying
+## 9. The strongest defensible novelty statement
 
-A defensible manuscript-level positioning is:
+The literature surveyed here already contains all of the following ingredients in other contexts:
 
-> Classical and generalized numeration theory develops a rich theory of representations once a base, scale, digit set, representation language, or numeration system has been specified. Dynamical approaches attach odometers and successor maps to such systems; automata theory studies normalization and arithmetic; and carry-propagation theory studies the dynamics and statistics of carries. The present work reverses a portion of this logical direction in a restricted, explicit operational model. Starting from a faithful nonrepeating unit-step trajectory with finite autonomous injective local observation and a nontrivial first local step, it derives a unique local capacity, constructs bounded cycle coordinates without primitive division or modulo, identifies the boundary transition as carry, and obtains an intrinsically unique finite positional representation of the external step clock.
+- finite-state and automata models of numeration;
+- successor dynamics and carry propagation;
+- odometers / adding machines;
+- inverse limits of finite cyclic systems with residual maps;
+- information-lossless coding;
+- structural derivations of positional equations from periodic systems.
 
-This formulation is strong but bounded.
+The manuscript should therefore avoid claims such as “carry has never been derived before” or “odometer structure is new.”
 
----
+A stronger and more precise statement is:
 
-## 10. What the literature does not justify us saying
+> **The contribution is a representation-rigidity theorem. For every finite depth, an arbitrary opaque optimal lossless encoding of the complete `b^k` quantitative window is forced to be a bijective coordinate change of the canonical cyclic successor system. Across depths, every zero-preserving successor-equivariant map is uniquely the conjugated residual projection, so the entire code tower is projectively equivalent to the canonical residual/carry tower.**
 
-The scoped review does **not** justify any of the following unconditional priority claims:
+Within the scoped review, we did not find this exact implication stated with the same primitive data and the same conclusion.
 
-- "This is the first derivation of positional notation from first principles."
-- "No previous work derives positional systems from periodicity or dynamics."
-- "All faithful representations must be positional."
-- "Finite-state information conservation universally implies quotient--remainder."
-- "The capstone subsumes abstract numeration systems, canonical number systems, or odometer theory."
-
-Manca (2024) alone makes the second sentence untenable, and the breadth of generalized numeration theory makes broad universal claims inappropriate without a much more exhaustive historical review.
-
-The safest novelty statement is conditional and structural:
-
-> **In the literature examined here, we did not find the same implication with the same primitive data: an abstract source trajectory and finite autonomous information-preserving local dynamics from which the radix-like capacity itself is derived before quotient, remainder, digits, or carry are introduced.**
-
-That is evidence from a scoped review, not a claim of exhaustive priority.
+That is a scoped literature observation, not an exhaustive historical priority claim.
 
 ---
 
-## 11. Recommended related-work paragraph for the paper
+## 10. Recommended paper positioning
 
-A publication version can use language close to the following:
+A publication-facing introduction can state the relation to prior work as follows:
 
-> Our result sits at the intersection of several established theories of numeration. Finite automata and transducers have long been used to study normalization and arithmetic in integer, beta, linear-recurrence, and related numeration systems; abstract numeration systems replace a fixed radix by ordered languages; canonical number-system theory studies existence and uniqueness of finite expansions for prescribed algebraic bases and digit sets; and odometer constructions encode the successor dynamics associated with given expansions. Carry propagation has also been studied directly, including for nonstandard and abstract systems. These theories predominantly take a numeration architecture---a base, scale, digit set, representation language, or expansion---as part of the input. A particularly close structural precedent is Manca's derivation of a base-representation recurrence from a monotone periodic enumeration system. The present theorem moves one step upstream in a different direction: within an explicit operational model, the local period/capacity is itself derived from finite autonomous injective dynamics before quotient, remainder, digits, or carry are introduced. The resulting positional representation is then identified downstream with the standard one.
+> Numeration theory, automata theory, carry propagation, and odometer dynamics provide rich analyses of representations once a numeration architecture or cyclic factor system has been specified. Information-lossless finite-state coding provides a separate language for exact recoverability under finite-state constraints. The present result addresses a rigidity question at the intersection of these themes. At every depth `k`, we allow a completely opaque finite code for the full set of `b^k` quantitative states and assume only injectivity together with the optimal state budget. This forces bijectivity. Exact unit successor is then unique up to conjugacy, its wrap event is the carry-through-depth event, and zero-preserving successor-equivariant maps between depths are uniquely residual reductions after decoding and re-encoding. Consequently the full arbitrary code tower is projectively equivalent to the canonical residual/carry tower. The theorem does not propose a new odometer construction; it proves that optimal lossless finite quantitative recodings cannot escape that projective dynamics.
 
 ---
 
-## 12. References selected for the manuscript
+## 11. Role of the earlier constructive branch
 
-The accompanying `references.bib` contains the core references used in this review. The list is intentionally compact enough for a first paper draft. A later submission pass should expand it through citation-chaining from the most relevant surveys, especially Barat--Berthé--Liardet--Thuswaldner, Frougny--Sakarovitch, Lecomte--Rigo, and Akiyama et al.
+The earlier modules in the repository remain important but should no longer carry the main novelty claim of the paper.
+
+They prove a complementary non-circular construction:
+
+```text
+finite-state obstruction
+→ information escape
+→ unbounded distinguishing depth
+→ explicit unit dynamics
+→ local recurrence
+→ emergent capacity
+→ cycle coordinates
+→ quotient/remainder crosswalk
+→ carry normalization
+→ finite positional expansion
+→ intrinsic digit uniqueness
+```
+
+This route explains how positional coordinates can emerge under explicit operational assumptions.
+
+The universal carry-collapse branch instead proves that once complete finite quantitative windows are represented optimally and without loss, arbitrary coordinate syntax cannot produce a different exact quantitative dynamics or hierarchy.
+
+The paper can present the universal theorem first and the emergent construction as a complementary structural explanation.
+
+---
+
+## 12. Core references retained for the manuscript
+
+The existing `references.bib` already contains the principal sources needed for the rewritten paper:
+
+- Frougny (1992, 1999);
+- Frougny–Sakarovitch (2010);
+- Lecomte–Rigo (2010);
+- Rigo (2014);
+- Grabner–Liardet–Tichy (1995);
+- Barat–Berthé–Liardet–Thuswaldner (2006);
+- Akiyama–Pethő (2002);
+- Akiyama et al. (2004);
+- Berthé–Frougny–Rigo–Sakarovitch (2020);
+- Heuberger–Kropf–Prodinger (2017);
+- Dai–Lathrop–Lutz–Mayordomo (2004);
+- Manca (2024).
+
+For a later journal-specific revision, citation chaining should focus especially on odometer recognition/conjugacy results and on finite-state lossless coding, since those are now closer to the final theorem than the earlier canonical-number-system comparison.
