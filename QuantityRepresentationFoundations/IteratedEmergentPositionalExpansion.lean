@@ -49,8 +49,8 @@ theorem iteratedEmergentQuotient_succ_start
   induction k with
   | zero => rfl
   | succ k ih =>
-      simp only [iteratedEmergentQuotient_succ]
-      rw [ih]
+      simpa only [iteratedEmergentQuotient_succ] using
+        congrArg (emergentQuotient b) ih
 
 /-- Every extracted emergent positional digit lies inside the local capacity. -/
 theorem emergentPositionalDigit_lt
@@ -193,7 +193,7 @@ theorem emergentLocalCapacity_has_finite_positional_expansion
     (trajectory : UnitTrajectory Q)
     (model : AutonomousLocalDynamics trajectory LocalState)
     {b : ℕ}
-    (hb : EmergentLocalCapacity trajectory model b)
+    (_hb : EmergentLocalCapacity trajectory model b)
     (hb1 : 1 < b)
     (n : ℕ) :
     ∃ k : ℕ,
