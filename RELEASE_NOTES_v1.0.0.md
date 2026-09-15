@@ -1,6 +1,6 @@
 # v1.0.0 — Universal Carry Rigidity of Optimal Lossless Finite Quantity Codes
 
-This is the first citable research release of **Quantity Representation Foundations**.
+This is the first citable research release of **Quantity Representation Foundations** and the archival reference version for DOI minting and long-term citation.
 
 The release packages the Lean 4 formalization, kernel audit surface, foundational capstone, and accompanying preprint for the universal carry-rigidity theorem.
 
@@ -42,7 +42,7 @@ The repository is pinned to its Lean/mathlib toolchain through `lean-toolchain` 
 
 ## Citation and archival
 
-This tagged release is intended as the archival research version associated with the Zenodo DOI generated from the GitHub–Zenodo integration.
+This tagged release is the archival research version intended for the Zenodo DOI generated from the GitHub–Zenodo integration.
 
 **Paper title:** *Conservation of Quantitative Information under Change of Representation: Universal Carry Rigidity of Optimal Lossless Finite Quantity Codes*
 
