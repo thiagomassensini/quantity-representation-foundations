@@ -2,12 +2,6 @@ import QuantityRepresentationFoundations
 
 /-!
 # Kernel audit surface
-
-The first public results are intentionally free of quotient, remainder,
-positional, and carry primitives.  These commands expose their logical axioms.
-Later crosswalk theorems are also audited, but they only identify independently
-constructed emergent coordinates with the standard Euclidean operations and,
-finally, with the normalization API of `carry-geometry`.
 -/
 
 #print axioms QuantityRepresentationFoundations.finiteState_obstructs_faithfulRepresentation
@@ -159,3 +153,10 @@ finally, with the normalization API of `carry-geometry`.
 #print axioms QuantityRepresentationFoundations.universal_optimal_lossless_representation_collapses_to_carry
 #print axioms QuantityRepresentationFoundations.universal_finiteLocal_lossless_representation_collapses_to_carry
 #print axioms QuantityRepresentationFoundations.any_two_optimal_lossless_towers_are_projectively_equivalent
+
+#print axioms QuantityRepresentationFoundations.ExplicitLosslessWindow.wrap_iff_carry
+#print axioms QuantityRepresentationFoundations.ExplicitLosslessWindow.exact_successor_unique_pointwise
+#print axioms QuantityRepresentationFoundations.ExplicitLosslessWindow.projection_unique_pointwise
+#print axioms QuantityRepresentationFoundations.ExplicitLosslessWindow.projection_refl_pointwise
+#print axioms QuantityRepresentationFoundations.ExplicitLosslessWindow.projection_comp_pointwise
+#print axioms QuantityRepresentationFoundations.ExplicitLosslessTower.explicit_lossless_tower_collapses_to_carry
