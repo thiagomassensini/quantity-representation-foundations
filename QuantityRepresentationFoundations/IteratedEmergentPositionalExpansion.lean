@@ -17,8 +17,9 @@ This module iterates that transport.  At depth `k` we distinguish:
 For every finite depth, the original quantity is exactly the weighted sum of
 all extracted residual digits below that depth plus one transported tail.
 For genuine capacities `1 < b`, repeated transport eventually kills the tail,
-so a finite positional expansion exists without taking `Nat.digits` as a
-primitive construction.
+so a finite positional expansion exists without taking `Nat.div`, `Nat.mod`,
+or `Nat.digits` as primitive ingredients of the construction or termination
+argument.
 -/
 
 namespace QuantityRepresentationFoundations
@@ -128,19 +129,31 @@ theorem emergent_positional_expansion_with_tail
           ac_rfl
 
 /--
-For a genuine capacity `1 < b`, a positive transported quantity strictly
-decreases after one emergent quotient step.
+Intrinsic descent of the transported quantity.
+
+For `1 < b`, the emergent decomposition itself
+
+`n = Q_b(n) * b + R_b(n)`
+
+forces `Q_b(n) < n` whenever `n > 0`.  No appeal to classical division or
+modulo is needed.
 -/
 theorem emergentQuotient_lt_self
     (b n : ℕ) (hb : 1 < b) (hn : 0 < n) :
     emergentQuotient b n < n := by
   have hb0 : 0 < b := lt_trans Nat.zero_lt_one hb
-  rw [emergentQuotient_eq_div b n hb0]
-  exact Nat.div_lt_self hn hb
+  have hvalue := emergent_decomposition_value b n hb0
+  by_cases hq : emergentQuotient b n = 0
+  · omega
+  · have hqpos : 0 < emergentQuotient b n := Nat.pos_of_ne_zero hq
+    have hqmul :
+        emergentQuotient b n < emergentQuotient b n * b := by
+      nlinarith
+    omega
 
 /--
 For every genuine capacity, iterated emergent transport eventually reaches a
-zero tail.
+zero tail, using only the intrinsic strict descent proved above.
 -/
 theorem exists_iteratedEmergentQuotient_eq_zero
     (b n : ℕ) (hb : 1 < b) :
