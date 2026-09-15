@@ -6,7 +6,8 @@ import QuantityRepresentationFoundations
 The first public results are intentionally free of quotient, remainder,
 positional, and carry primitives.  These commands expose their logical axioms.
 Later crosswalk theorems are also audited, but they only identify independently
-constructed emergent coordinates with the standard Euclidean operations.
+constructed emergent coordinates with the standard Euclidean operations and,
+finally, with the normalization API of `carry-geometry`.
 -/
 
 #print axioms QuantityRepresentationFoundations.finiteState_obstructs_faithfulRepresentation
@@ -61,3 +62,12 @@ constructed emergent coordinates with the standard Euclidean operations.
 #print axioms QuantityRepresentationFoundations.emergentQuotientRemainder_eq_classical
 #print axioms QuantityRepresentationFoundations.emergentLocalCapacity_eq_classicalQuotientRemainder
 #print axioms QuantityRepresentationFoundations.classicalRemainder_controls_emergentLocalReadout
+#print axioms QuantityRepresentationFoundations.emergentCoordinates_are_carryGeometryNormalization
+#print axioms QuantityRepresentationFoundations.emergentRemainder_eq_normalizedDigit
+#print axioms QuantityRepresentationFoundations.emergentQuotient_eq_carryUnits
+#print axioms QuantityRepresentationFoundations.emergentCoordinates_eq_carryGeometryNormalization
+#print axioms QuantityRepresentationFoundations.classicalQR_eq_carryGeometryNormalization
+#print axioms QuantityRepresentationFoundations.emergent_step_inside_cycle_is_noCarry
+#print axioms QuantityRepresentationFoundations.emergent_step_at_boundary_is_oneCarry
+#print axioms QuantityRepresentationFoundations.firstSaturation_is_maxDigit_add_one_normalization
+#print axioms QuantityRepresentationFoundations.emergentLocalCapacity_eq_carryGeometryNormalization
