@@ -70,7 +70,7 @@ theorem canonicalDepthProjection_commutes_successor
     (((n.val + 1) % (b ^ (k + 1))) % (b ^ k)) =
       (((n.val % (b ^ k)) + 1) % (b ^ k))
   rw [Nat.mod_mod_of_dvd _ (placeValue_dvd_nextDepth b k)]
-  exact (Nat.mod_add_mod n.val 1 (b ^ k)).symm
+  exact (Nat.mod_add_mod n.val (b ^ k) 1).symm
 
 /--
 A non-wrapping canonical successor is ordinary increment on the underlying
