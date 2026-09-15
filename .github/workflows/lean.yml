@@ -13,3 +13,5 @@ jobs:
       - uses: leanprover/lean-action@v1
         with:
           build: true
+      - name: Print actual axiom dependencies
+        run: lake env lean QuantityRepresentationFoundations/AxiomProbe.lean
