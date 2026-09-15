@@ -1,2 +1,3 @@
 import QuantityRepresentationFoundations.FiniteStateObstruction
 import QuantityRepresentationFoundations.InformationEscape
+import QuantityRepresentationFoundations.UnboundedExtension
