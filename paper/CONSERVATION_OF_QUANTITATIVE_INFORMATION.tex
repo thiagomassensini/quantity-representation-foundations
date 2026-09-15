@@ -19,15 +19,17 @@
 \newtheorem{remark}[theorem]{Remark}
 
 \newcommand{\N}{\mathbb{N}}
-\newcommand{\Qe}{Q_b}
-\newcommand{\Ree}{R_b}
-\newcommand{\state}{q}
-\newcommand{\Local}{\mathcal{L}}
-\newcommand{\Ext}{\mathcal{X}}
-\newcommand{\Enc}{\mathcal{E}}
-\newcommand{\Obs}{\ell}
+\newcommand{\Fin}{\operatorname{Fin}}
+\newcommand{\card}[1]{\left|#1\right|}
+\newcommand{\id}{\operatorname{id}}
+\newcommand{\lean}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\Code}{\mathcal{C}}
+\newcommand{\Window}{\mathcal{W}}
+\newcommand{\Succ}{S}
+\newcommand{\Proj}{\pi}
 
-\title{Conservation of Quantitative Information under Change of Representation}
+\title{Conservation of Quantitative Information under Change of Representation\\[0.5ex]
+\large Universal Carry Rigidity of Optimal Lossless Finite Quantity Codes}
 \author{Thiago Massensini}
 \date{}
 
@@ -35,541 +37,549 @@
 \maketitle
 
 \begin{abstract}
-We study a restricted but explicit question about the structural origin of positional representation. Rather than assuming a radix, quotient, remainder, digit alphabet, positional weights, or carry operation, we begin with an abstract quantity state space equipped with an injective unit-step trajectory, a globally faithful split representation into a finite local component and an unrestricted extension component, and autonomous injective local dynamics. A nontrivial first local step excludes the degenerate period-one case.
+We prove a representation-rigidity theorem for finite quantitative coding. Fix an integer capacity $b>1$. At depth $k$, consider the complete quantitative window of $b^k$ distinguishable states and let $\Code_k$ be an arbitrary finite code space. No positional syntax, digit alphabet, ordering, quotient, remainder, truncation rule, or carry algorithm is assumed on the code. The only finite-window hypotheses are losslessness---an injective encoding of all $b^k$ quantity states---and an optimal state budget $\card{\Code_k}\le b^k$. Finite cardinality forces equality $\card{\Code_k}=b^k$ and hence bijectivity of the encoding. Therefore every optimal lossless code is a change of coordinates of the canonical cyclic quantity window. Exact unit successor on the code is uniquely determined by conjugation, and its wrap event is equivalent to the carry-through-depth event formalized in Carry Geometry.
 
-From these hypotheses we derive a unique least positive local return $b>1$. Relative to this emergent capacity, every external step count $n\in\N$ admits unique cycle/residual coordinates
-\[
- n=q b+r,\qquad 0\le r<b,
-\]
-constructed without taking natural-number division or modulo as primitive operations. The successor dynamics has exactly two local regimes: residual advance inside the cycle, or residual reset together with an increment of the completed-cycle coordinate at the boundary. The latter transition is identified downstream with ordinary carry normalization. Iteration yields a finite positional expansion and an intrinsically unique canonical digit list. Only after these constructions are complete do we identify the emergent coordinates with $n/b$ and $n\bmod b$, and the emergent digit list with the standard base-$b$ representation.
-
-All principal statements are formalized in Lean~4. The result does not claim that arbitrary faithfulness forces positional notation. Its contribution is a machine-checked implication from an explicit finite-local operational model to canonical positional structure on the external unit-step clock.
+We then prove cross-depth rigidity. For every $k\le m$, the unique zero-preserving map from the depth-$m$ canonical cycle to the depth-$k$ cycle that commutes with unit successor is reduction modulo $b^k$. Transporting this result through arbitrary encoders yields a unique code-level projection. These projections are identities at equal depth and compose transitively, so every arbitrary optimal lossless tower is projectively equivalent, as a successor dynamical system, to the canonical residual/carry tower. Any two such towers with the same capacity are therefore projectively equivalent. A specialization to arbitrary finite local cells derives $b$ as the number of available local states. The complete result is formalized and kernel-checked in Lean~4. A complementary constructive branch of the repository independently derives quotient--remainder-like coordinates, carry transport, and canonical digits from explicit operational hypotheses.
 \end{abstract}
 
 \section{Introduction}
 
-Positional numeral systems are usually introduced by fixing a base $b>1$, a finite digit alphabet, and the evaluation rule
-\[
- n=\sum_{j=0}^{k} d_j b^j,
- \qquad 0\le d_j<b.
-\]
-Quotient--remainder decomposition, digit extraction, normalization, and carry are then developed inside that architecture.
-
-This paper asks a logically earlier question:
+A representation of quantity may change symbols, labels, bit patterns, memory layout, or local coordinates without changing the quantity represented. This elementary fact suggests a structural question:
 
 \begin{quote}
-What representational structure is forced when unbounded distinguishable quantitative states must evolve by persistent unit steps while a faithful representation exposes only finitely many local states?
+If a complete finite set of distinguishable quantities is represented exactly with no redundant finite states, how much of the quantitative dynamics is actually free to change?
 \end{quote}
 
-The answer obtained here is conditional rather than universal. We isolate an explicit operational system and prove that, under its hypotheses, a unique nontrivial local capacity emerges. That capacity supports unique cycle/residual coordinates, a carry boundary, hierarchical transport, finite positional expansion, and intrinsic uniqueness of the canonical representation.
+Ordinary positional notation suggests one answer. In base $b>1$, a depth-$k$ window has $b^k$ residue states. Unit increment acts cyclically on that window, and the transition from the maximal residue back to zero is the finite shadow of carry through the lowest $k$ places. Between depths, the lower state is obtained by reduction modulo the lower place value.
 
-The methodological constraint is non-circularity: the primitive system contains no radix, quotient, remainder, division, modulo, digit list, positional weight, or carry operation. Classical arithmetic interfaces are allowed only after independently constructed objects have already satisfied a unique specification.
+These statements are usually formulated inside a positional system. Digits, powers of a base, quotient and remainder, and a carry algorithm are already available. Our goal is different: we ask whether the same finite quantitative mechanics is forced when the code syntax is completely opaque.
 
-The source quantity type remains abstract. Natural numbers enter as the external clock of a nonrepeating unit trajectory. Accordingly, the positional representation derived in the present theorem is a canonical representation of that external step clock, not yet an internally derived arithmetic structure on an arbitrary carrier $Q$.
+Fix $b>1$ and write
+\[
+  \Window_k := \Fin(b^k).
+\]
+Let $\Code_k$ be any finite code type and suppose only that there is an injective encoding
+\[
+  e_k:\Window_k\hookrightarrow\Code_k
+\]
+with the finite-state budget
+\[
+  \card{\Code_k}\le b^k.
+\]
+No operation or ordering on $\Code_k$ is assumed.
+
+The first rigidity step is cardinal:
+\[
+  b^k\le\card{\Code_k}\le b^k,
+\]
+so $e_k$ is bijective. Thus every optimal lossless finite code is a coordinate system on the same quantity window.
+
+Define canonical successor
+\[
+  \Succ_k(n)=(n+1)\bmod b^k.
+\]
+Transporting $\Succ_k$ through $e_k$ gives an exact successor on the code. We prove that every exact successor implementation equals this transported map. Furthermore,
+\[
+  \Succ_k(n)=0
+  \quad\Longleftrightarrow\quad
+  n+1\equiv0\pmod{b^k},
+\]
+and the right-hand side is exactly the carry-through-depth predicate from the linked Carry Geometry formalization.
+
+The second rigidity step concerns depth. For $k\le m$, any map
+\[
+  f:\Window_m\to\Window_k
+\]
+that fixes zero and commutes with unit successor is forced to be
+\[
+  f(n)=n\bmod b^k.
+\]
+Transported through arbitrary encoders, this determines the unique coherent map $\Code_m\to\Code_k$. The resulting maps satisfy
+\[
+  \Proj_{k,k}=\id,
+  \qquad
+  \Proj_{j,k}\circ\Proj_{k,m}=\Proj_{j,m}.
+\]
+Hence the whole code tower is projectively equivalent to the canonical residual/carry tower.
+
+The principal Lean theorem is
+\begin{center}
+\lean{universal_optimal_lossless_representation_collapses_to_carry}.
+\end{center}
+It returns a \lean{UniversalCarryCollapseCertificate} packaging exact cardinality, bijectivity, successor conjugacy, carry/wrap equivalence, uniqueness of all cross-depth projections, residual naturality, and the projective laws.
 
 \subsection{Contributions}
 
-The formal development establishes the following chain.
-
+The formal development establishes:
 \begin{enumerate}[label=(\roman*)]
-\item An infinite distinguishable source cannot inject into a finite state space.
-\item In a faithful split representation with finite local state, local collisions force compensating distinctions in the extension component.
-\item No fixed finite tower of finite layers suffices for a faithful representation of an infinite source; in a countably layered model, distinguishing information appears beyond every finite prefix.
-\item Under explicit unit-step dynamics, finite local observation must recur arbitrarily late.
-\item Under autonomous injective local evolution, there is a unique least positive local return. If the first local step changes the observation, this capacity satisfies $b>1$.
-\item Relative to $b$, cycle/residual coordinates are constructed recursively and proved unique without primitive natural-number division or modulo.
-\item The boundary successor transition is exactly residual reset plus one transported completed-cycle unit; downstream it coincides with carry normalization.
-\item Iterated transport yields a finite positional expansion, and a recursively generated digit list is intrinsically canonical and unique.
-\item Standard division, modulo, and base-$b$ digits are recovered only as downstream identifications.
+\item finite-window cardinal rigidity;
+\item uniqueness of exact successor under arbitrary optimal recoding;
+\item invariance of the carry/wrap event;
+\item simultaneous rigidity at all finite depths;
+\item uniqueness of adjacent and arbitrary-depth successor-equivariant projections;
+\item identity and composition laws for the forced projections;
+\item projective equivalence of any two optimal lossless towers of the same capacity;
+\item a specialization to arbitrary finite local cells with $b$ derived as their state cardinality;
+\item a complete Lean~4 formalization and axiom audit.
 \end{enumerate}
 
-The complete capstone is formalized by the Lean theorem
-\texttt{existsUnique\_foundationalCapstone}.
+A complementary constructive branch derives cycle coordinates, quotient--remainder-like operations, carry transport, and canonical digits without using classical division, modulo, or digit extraction as primitive constructors. This branch is not needed for the rigidity proof, but provides a non-circular emergence route to the familiar arithmetic objects.
 
-\section{Formal setting and logical discipline}
+\section{Optimal lossless finite representation}
 
-\subsection{Faithfulness}
+\subsection{Finite quantity windows}
 
-Let $Q$ be a type of source states and $S$ a representation space.
+Fix $b>1$. At depth $k$, the complete quantitative window is the finite type
+\[
+  \Window_k=\Fin(b^k),
+\]
+whose elements represent the states $0,1,\dots,b^k-1$.
 
-\begin{definition}[Faithful representation]
-A map $E:Q\to S$ is \emph{faithful} if it is injective.
+\subsection{Opaque code spaces}
+
+\begin{definition}[Optimal lossless window]
+An optimal lossless code for $\Window_k$ consists of a finite type $\Code_k$ and an encoding
+\[
+  e_k:\Window_k\to\Code_k
+\]
+that is injective and satisfies
+\[
+  \card{\Code_k}\le b^k.
+\]
 \end{definition}
 
-No arithmetic structure is imposed on $Q$ or $S$ at this level.
+In Lean this is \lean{LosslessCompressedWindow}. The word \emph{compressed} is used in an exact finite-state cardinal sense: no more code states are available than distinct quantities requiring representation. We are not making a Shannon-theoretic claim about variable-length codes.
 
-If $Q$ is infinite and $S$ finite, no faithful representation exists. This is the first finite-state obstruction and is purely cardinal.
+No digit alphabet, positional order, place-value function, quotient, remainder, truncation operation, or native carry operation is assumed on $\Code_k$.
 
-\subsection{Split representation}
-
-We next consider a representation
-\[
- \Enc:Q\longrightarrow \Local\times\Ext,
-\]
-where $\Local$ is a local state space and $\Ext$ is an unrestricted extension channel.
-
-If $\Enc$ is injective and two distinct states have the same local component, then their extension components must differ. With $Q$ infinite and $\Local$ finite, such a local collision is unavoidable.
-
-Thus finite local capacity does not destroy global distinguishability; instead it forces distinguishing information outside the local component.
-
-\subsection{A separate layered-depth branch}
-
-The formal development also studies representations by countably many finite layers. It proves that no fixed finite depth can be faithful on an infinite source, and that in any faithful countably layered representation by finite layers, distinct states can agree below arbitrarily large cutoffs while differing at or above those cutoffs. A unique first distinguishing depth is then defined for each distinct pair.
-
-This branch is conceptually upstream of positional depth, but it is important to state a precise logical boundary:
-
-\begin{remark}[Current boundary]
-The present capstone does \emph{not} derive the unit-step trajectory or autonomous local dynamics from the layered-depth theorems. Those dynamic objects are explicit hypotheses of the capstone system.
+\begin{remark}[Arbitrary recodings]
+A permutation of ordinary codes, a Gray-like encoding, a relabeling by opaque symbols, or any other bijective finite recoding lies inside this model. Such examples are not excluded; the theorem is designed to identify them as coordinate changes.
 \end{remark}
 
-\section{Operational unit dynamics}
+\section{Cardinal rigidity}
 
-\subsection{Unit trajectory}
-
-We assume a sequence of quantity states
+\begin{theorem}[Exact state count]
+For every optimal lossless window,
 \[
- \state_0,\state_1,\state_2,\ldots\in Q
+  \card{\Code_k}=b^k.
 \]
-with a global transition $T:Q\to Q$ satisfying
-\[
- \state_{n+1}=T(\state_n),
-\]
-and the trajectory map $n\mapsto \state_n$ is injective.
-
-The natural number $n$ is therefore an external count of unit steps, not an assumed arithmetic coordinate on $Q$.
-
-\subsection{Autonomous local dynamics}
-
-Let $\Obs:Q\to\Local$ be the local observation and let $s:\Local\to\Local$ satisfy
-\[
- \Obs(Tq)=s(\Obs(q)).
-\]
-We assume $s$ is injective. Thus the local transition does not merge distinct local states.
-
-The local observation is also required to agree with the local component of the globally faithful representation:
-\[
- \Obs(q)=\pi_1(\Enc(q)).
-\]
-Finally, the first unit step is nontrivial locally:
-\[
- \Obs(\state_1)\ne \Obs(\state_0).
-\]
-
-These are the operational hypotheses packaged in the Lean structure
-\texttt{FoundationalOperationalRepresentation}.
-
-\section{Finite local recurrence and information escape}
-
-Because the trajectory is injective, it contains infinitely many distinct global states. If $\Local$ is finite, the observed trajectory must recur locally. More strongly, for every cutoff $N$ there exist $m<n$ with $N\le m$ such that
-\[
- \Obs(\state_m)=\Obs(\state_n).
-\]
-Global faithfulness then forces
-\[
- \pi_2\Enc(\state_m)\ne \pi_2\Enc(\state_n).
-\]
-
-Thus recurrent local states coexist with persistent global distinction. This is the dynamic form of information escape from finite local capacity.
-
-\section{Emergent local capacity}
-
-Autonomous local iteration gives
-\[
- \Obs(\state_n)=s^n(\Obs(\state_0)).
-\]
-Local recurrence somewhere does not by itself imply return to the initial local state, because a finite map can possess transient tails. Injectivity of $s$ rules out this loss of predecessor information: a recurrence between two iterates can be cancelled back to a positive return of the initial state.
-
-\begin{definition}[Positive local return]
-A positive integer $b$ is a positive local return if
-\[
- b>0,
- \qquad
- \Obs(\state_b)=\Obs(\state_0).
-\]
-\end{definition}
-
-\begin{definition}[Emergent local capacity]
-An integer $b$ is the emergent local capacity if it is the least positive local return.
-\end{definition}
-
-Finite autonomous injective local dynamics yields a unique such $b$.
-
-\begin{proposition}[Nontrivial capacity]
-If the first local step changes the local observation, then the unique emergent local capacity satisfies
-\[
- b>1.
-\]
-\end{proposition}
-
-Indeed $b=1$ would identify the first local observation with the initial one, contradicting nontriviality.
-
-Every positive return is a period of the entire local readout, so for the emergent capacity
-\[
- \Obs(\state_{n+b})=\Obs(\state_n)
- \qquad(n\in\N).
-\]
-
-\section{Cycle coordinates without primitive division or modulo}
-
-Fix a positive capacity $b$. We define a cycle decomposition by the specification
-\[
- n=q b+r,
- \qquad r<b.
-\]
-At this point $q$ and $r$ are not defined using $n/b$ or $n\bmod b$.
-
-Existence is proved constructively by induction on $n$. Starting at $(q,r)=(0,0)$, one successor step has exactly two possibilities:
-\[
- (q,r)\longmapsto(q,r+1)
- \quad\text{if }r+1<b,
-\]
-or
-\[
- (q,r)\longmapsto(q+1,0)
- \quad\text{if }r+1=b.
-\]
-
-The bounded decomposition is unique: if
-\[
- q_1b+r_1=q_2b+r_2,
- \qquad r_1,r_2<b,
-\]
-then the two values lie in the same half-open block
-\[
- [qb,(q+1)b),
-\]
-forcing $q_1=q_2$ and then $r_1=r_2$.
-
-Hence
-\[
- \forall n\in\N\;\exists! (q,r)\in\N^2:
- n=qb+r,\quad r<b.
-\]
-
-\section{Emergent quotient and remainder}
-
-The formalization defines the two coordinates computationally through the successor recursion. Write
-\[
- \Qe(n)\in\N,
- \qquad
- \Ree(n)\in\N
-\]
-for the completed-cycle count and residual position after $n$ unit steps.
-
-They satisfy
-\[
- n=\Qe(n)b+\Ree(n),
- \qquad
- \Ree(n)<b.
-\]
-By uniqueness they are the only bounded cycle coordinates.
-
-The local readout depends only on the residual coordinate:
-\[
- \Obs(\state_n)=\Obs(\state_{\Ree(n)}).
-\]
-Thus $\Ree(n)$ is operationally the position inside the local cycle, not merely an algebraic remainder.
-
-\section{The carry boundary}
-
-The successor rule for the emergent coordinates is dichotomic.
-
-If
-\[
- \Ree(n)+1<b,
-\]
-then
-\[
- \Qe(n+1)=\Qe(n),
- \qquad
- \Ree(n+1)=\Ree(n)+1.
-\]
-If
-\[
- \Ree(n)+1=b,
-\]
-then
-\[
- \Qe(n+1)=\Qe(n)+1,
- \qquad
- \Ree(n+1)=0.
-\]
-
-The second case is the structural boundary event: the finite local position resets while exactly one completed-cycle unit is transported outward.
-
-Only after this dynamic event has been constructed is it compared with the normalization API of the companion Carry Geometry development. The identification is
-\[
- \Ree(n)=\operatorname{normalizedDigit}(b,n),
-\]
-\[
- \Qe(n)=\operatorname{carryUnits}(b,n).
-\]
-Thus, within the formal model, carry is the positional reading of the dynamically forced boundary transition.
-
-\section{Weighted hierarchical transport}
-
-At a level $j$, the one-step decomposition becomes
-\[
- a b^j
- =\Ree(a)b^j+\Qe(a)b^{j+1}.
-\]
-The residual portion remains at level $j$ while completed cycles reappear one level higher.
-
-The first full cycle illustrates the mechanism transparently:
-\[
- \Ree(b)=0,
- \qquad
- \Qe(b)=1,
-\]
-so
-\[
- b\,b^j=b^{j+1}.
-\]
-The elementary power law is thereby read as exact transport of one saturated local cycle to one unit at the next level.
-
-\section{Iterated transport and finite expansion}
-
-Define the unresolved quantity after $k$ transport steps recursively by
-\[
- Q_b^{(0)}(n)=n,
- \qquad
- Q_b^{(k+1)}(n)=\Qe(Q_b^{(k)}(n)),
-\]
-and define the residual digit at depth $k$ by
-\[
- r_k(n)=\Ree(Q_b^{(k)}(n)).
-\]
-For every finite depth $k$,
-\[
- n=
- \sum_{i<k} r_i(n)b^i
- +Q_b^{(k)}(n)b^k.
-\]
-Nothing is discarded: the unresolved information is stored explicitly in the transported tail.
-
-For $b>1$, the decomposition itself implies strict descent of positive transported quantities:
-\[
- m>0\quad\Longrightarrow\quad \Qe(m)<m.
-\]
-This proof is intrinsic; it does not appeal to classical natural-number division. Hence repeated transport eventually reaches zero:
-\[
- \exists k:\quad Q_b^{(k)}(n)=0.
-\]
-Therefore
-\[
- n=\sum_{i<k} r_i(n)b^i,
- \qquad 0\le r_i(n)<b.
-\]
-
-\section{Canonical emergent digits}
-
-The finite little-endian digit list is defined recursively by
-\[
- \operatorname{EDig}_b(0)=[],
-\]
-\[
- \operatorname{EDig}_b(n)
- =\Ree(n)::\operatorname{EDig}_b(\Qe(n))
- \qquad(n>0).
-\]
-Termination uses the intrinsic strict descent above.
-
-Before comparison with any library digit function, the formalization proves:
-
-\begin{enumerate}[label=(\alph*)]
-\item exact reconstruction of $n$;
-\item every digit is strictly less than $b$;
-\item a nonempty representation has nonzero most significant digit.
-\end{enumerate}
-
-More strongly, these conditions characterize the representation intrinsically.
-
-\begin{theorem}[Intrinsic positional uniqueness]
-Let $L$ be a finite coefficient list. Suppose all coefficients are $<b$ and a nonempty $L$ has nonzero most significant coefficient. Then
-\[
- L=\operatorname{EDig}_b(\operatorname{value}_b(L)).
-\]
-Consequently, for every $n$ there exists exactly one admissible finite coefficient list without a leading zero whose value is $n$.
 \end{theorem}
 
-The proof proceeds structurally through the list. If $L=d::T$, then
+\begin{proof}
+Injectivity gives $b^k=\card{\Window_k}\le\card{\Code_k}$. The state budget gives the reverse inequality. Antisymmetry yields equality.
+\end{proof}
+
+This is formalized as \lean{LosslessCompressedWindow.card_eq_windowSize}.
+
+\begin{corollary}[Forced bijection]
+The encoder $e_k$ is bijective, hence
 \[
- \operatorname{value}_b(L)
- =b\,\operatorname{value}_b(T)+d,
+  \Window_k\simeq\Code_k.
 \]
-and uniqueness of bounded cycle decomposition forces
+\end{corollary}
+
+Lean theorem: \lean{LosslessCompressedWindow.encode_bijective}.
+
+The conclusion is already representation-theoretic: in the optimal finite-state regime, exact recoverability leaves no unused code states and no collisions. Every code state carries exactly one quantitative state.
+
+\section{Canonical successor and carry}
+
+For $b>0$, define the canonical cyclic successor
 \[
- d=\Ree(\operatorname{value}_b(L)),
+  \Succ_k(n)=(n+1)\bmod b^k.
 \]
+The Lean definition is \lean{windowSuccessor}. The distinguished zero state is \lean{windowZero}.
+
+The linked Carry Geometry development defines carry through the lowest $k$ places by
 \[
- \operatorname{value}_b(T)=\Qe(\operatorname{value}_b(L)).
+  n+1\equiv0\pmod{b^k}.
 \]
-The tail is then canonical by induction.
+In Lean the predicate is \lean{CarryGeometry.carryAfterIncrementAtDepth}.
 
-\section{Foundational capstone}
-
-We now collect the assumptions and conclusions in one statement.
-
-\begin{theorem}[Foundational capstone]
-Let $Q$ be an abstract source type, $\Local$ a finite local state type, and $\Ext$ an extension type. Assume:
-
-\begin{enumerate}[label=(\roman*)]
-\item an injective unit-step trajectory $n\mapsto\state_n$ in $Q$;
-\item a globally faithful representation $\Enc:Q\to\Local\times\Ext$;
-\item an autonomous local observation $\Obs:Q\to\Local$ intertwined with the unit transition;
-\item an injective local step map;
-\item agreement of $\Obs$ with the local component of $\Enc$;
-\item a nontrivial first local step, $\Obs(\state_1)\ne\Obs(\state_0)$.
-\end{enumerate}
-
-Then there exists a unique $b\in\N$ such that the full capstone certificate holds. In particular:
-
-\begin{enumerate}[label=(\alph*)]
-\item $b$ is the least positive local return and $b>1$;
-\item distinguishing information is forced into the extension component arbitrarily late along the trajectory;
-\item the local readout is $b$-periodic and depends only on the emergent residual;
-\item every $n\in\N$ has unique bounded cycle coordinates $n=qb+r$, $r<b$;
-\item the emergent cycle coordinates coincide downstream with positional digit/carry normalization;
-\item every $n\in\N$ has a unique finite canonical positional representation with digits $<b$ and no leading zero.
-\end{enumerate}
+\begin{theorem}[Canonical wrap is carry]
+For every $n\in\Window_k$,
+\[
+  \Succ_k(n)=0
+  \quad\Longleftrightarrow\quad
+  \operatorname{carryAfterIncrementAtDepth}(b,k,n).
+\]
 \end{theorem}
 
-This is formalized in Lean by
-\texttt{existsUnique\_foundationalCapstone}.
+This is \lean{windowSuccessor_eq_zero_iff_carry}.
 
-\section{Downstream classical crosswalks}
+The theorem identifies carry dynamically, before any statement about the visual syntax of an arbitrary code.
 
-Once the emergent coordinates have been constructed and their bounded decomposition proved unique, the standard quotient/remainder pair is shown to satisfy the same specification. Hence uniqueness yields
+\section{Successor rigidity under arbitrary recoding}
+
+Since $e_k$ is bijective, define
 \[
- \Qe(n)=\left\lfloor\frac{n}{b}\right\rfloor,
- \qquad
- \Ree(n)=n\bmod b.
+  T_k=e_k\circ\Succ_k\circ e_k^{-1}.
 \]
-Likewise, once the emergent digit list is intrinsically canonical,
+This is \lean{LosslessCompressedWindow.codeSuccessor}. The intertwining identity is
 \[
- \operatorname{EDig}_b(n)=\operatorname{Nat.digits}_b(n).
+  T_k(e_k(n))=e_k(\Succ_k(n)).
 \]
 
-These equalities are identification theorems, not definitions used to generate the emergent objects.
+\begin{theorem}[Unique exact successor]
+Suppose $U:\Code_k\to\Code_k$ satisfies
+\[
+  U(e_k(n))=e_k(\Succ_k(n))
+\]
+for every $n\in\Window_k$. Then $U=T_k$.
+\end{theorem}
+
+Lean theorem: \lean{LosslessCompressedWindow.codeSuccessor_unique}.
+
+\begin{proof}
+Every $c\in\Code_k$ is $e_k(n)$ for some $n$, by surjectivity. Exactness determines $U(c)$ on that representative, so $U$ agrees pointwise with $T_k$.
+\end{proof}
+
+\begin{corollary}[Carry is invariant under optimal lossless recoding]
+For any exact successor $U$,
+\[
+  U(e_k(n))=e_k(0)
+  \quad\Longleftrightarrow\quad
+  \operatorname{carryAfterIncrementAtDepth}(b,k,n).
+\]
+\end{corollary}
+
+Lean theorem: \lean{LosslessCompressedWindow.exact_successor_wrap_iff_carry}.
+
+An arbitrary recoding can hide the familiar ripple pattern in its raw symbols, but it cannot move the quantitative wrap event.
+
+\section{Change of representation}
+
+Let $\Code_k^{(1)}$ and $\Code_k^{(2)}$ be two arbitrary optimal lossless codes. Their forced coordinate change is
+\[
+  \Phi_k=e_k^{(2)}\circ(e_k^{(1)})^{-1}.
+\]
+Lean defines this as \lean{LosslessCompressedWindow.changeOfRepresentation}.
+
+It preserves represented quantity and conjugates successor:
+\[
+  \Phi_k\circ T_k^{(1)}=T_k^{(2)}\circ\Phi_k.
+\]
+The corresponding theorem is \lean{changeOfRepresentation_conjugates_successor}.
+
+Thus the finite quantitative successor is an invariant of the represented quantity window, not of a particular code syntax.
+
+\section{All finite depths}
+
+A full arbitrary tower is formalized by \lean{LosslessCompressedTower}. At each depth $k$ the code type may be different and opaque.
+
+Lean proves simultaneously:
+\[
+  \card{\Code_k}=b^k,
+  \qquad
+  \Code_k\simeq\Window_k,
+\]
+and carry conjugacy at every depth. The principal theorem at this stage is \lean{LosslessCompressedTower.all_depths_force_carry_conjugacy}.
+
+Levelwise rigidity alone leaves one possible freedom: the maps connecting different depths. We now remove that freedom.
+
+\section{Cross-depth rigidity}
+
+\subsection{Canonical residual maps}
+
+For $k\le m$, define
+\[
+  \rho_{k,m}(n)=n\bmod b^k,
+  \qquad
+  \rho_{k,m}:\Window_m\to\Window_k.
+\]
+Lean definition: \lean{canonicalDepthProjectionLE}.
+
+These maps preserve zero and commute with unit successor:
+\[
+  \rho_{k,m}(0)=0,
+  \qquad
+  \rho_{k,m}\circ\Succ_m=\Succ_k\circ\rho_{k,m}.
+\]
+
+\begin{theorem}[Cross-depth rigidity]
+Let $k\le m$ and let $f:\Window_m\to\Window_k$ satisfy
+\[
+  f(0)=0
+\]
+and
+\[
+  f(\Succ_m(n))=\Succ_k(f(n))
+\]
+for every $n$. Then
+\[
+  f=\rho_{k,m}.
+\]
+\end{theorem}
+
+Lean theorem: \lean{canonicalDepthProjectionLE_unique}.
+
+\begin{proof}[Proof idea]
+The cyclic successor generates every element of $\Window_m$ from zero. The value of $f$ at zero is prescribed, and successor equivariance recursively prescribes $f$ on the entire cycle. The residual map satisfies the same two laws, so the two maps coincide.
+\end{proof}
+
+This is a key rigidity statement: no native digit-truncation rule is assumed, yet the only quantity-coherent factor map is modulo reduction.
+
+\section{Projective laws}
+
+The residual maps satisfy
+\[
+  \rho_{k,k}=\id
+\]
+and, for $j\le k\le m$,
+\[
+  \rho_{j,k}\circ\rho_{k,m}=\rho_{j,m}.
+\]
+The Lean theorems are \lean{canonicalDepthProjectionLE_refl} and \lean{canonicalDepthProjectionLE_comp}.
+
+Hence the canonical finite quantity windows form a projective system. This is the familiar finite-factor architecture of the constant-base adding machine or odometer, but the following section shows that arbitrary optimal code towers are forced to realize the same system.
+
+\section{Projective rigidity in opaque coordinates}
+
+For arbitrary code levels $\Code_m$ and $\Code_k$, define
+\[
+  P_{k,m}=e_k\circ\rho_{k,m}\circ e_m^{-1}.
+\]
+Lean definition: \lean{LosslessCompressedWindow.codeDepthProjectionLE}.
+
+\begin{theorem}[Unique code-level projection]
+Any $F:\Code_m\to\Code_k$ that preserves represented zero and commutes with exact code successor satisfies
+\[
+  F=P_{k,m}.
+\]
+\end{theorem}
+
+Lean theorem: \lean{LosslessCompressedWindow.codeDepthProjectionLE_unique}.
+
+Existence and uniqueness are packaged by \lean{LosslessCompressedWindow.existsUnique_codeDepthProjectionLE}.
+
+For arbitrary towers, Lean defines \lean{LosslessCompressedTower.forcedProjection} and proves:
+\begin{align*}
+  P_{k,k}&=\id,\\
+  P_{j,k}\circ P_{k,m}&=P_{j,m}.
+\end{align*}
+The packaged theorem is \lean{LosslessCompressedTower.universal_projective_tower_laws}.
+
+Therefore the arbitrary code tower is not only levelwise conjugate to the canonical cycles. Its entire depth hierarchy is forced.
+
+\section{Universal carry-collapse capstone}
+
+The final Lean proposition is \lean{UniversalCarryCollapseCertificate}. It records eight simultaneous facts:
+\begin{enumerate}[label=(\arabic*)]
+\item exact cardinality at every level;
+\item bijectivity of every encoder;
+\item successor conjugacy;
+\item carry/wrap equivalence;
+\item uniqueness of every ordered cross-depth projection;
+\item residual naturality of those projections;
+\item identity projection at equal depth;
+\item transitive projective composition.
+\end{enumerate}
+
+\begin{theorem}[Universal carry-collapse theorem]
+Let $b>1$ and let $\Code=(\Code_k)_{k\in\N}$ be any \lean{LosslessCompressedTower b}. Then $\Code$ satisfies \lean{UniversalCarryCollapseCertificate}. In particular, it is projectively equivalent, as an exact successor dynamical system, to the canonical residual/carry tower.
+\end{theorem}
+
+Lean theorem:
+\begin{center}
+\lean{universal_optimal_lossless_representation_collapses_to_carry}.
+\end{center}
+
+The conclusion may be summarized as
+\[
+\boxed{
+\text{optimal lossless finite quantitative representation}
+\Longrightarrow
+\text{residual/carry projective dynamics up to change of coordinates}.
+}
+\]
+
+The word ``collapse'' refers to quotienting out representational coordinates. Different codes may remain visually and computationally different, but there is no second exact quantitative successor or coherent depth hierarchy left after conjugacy is taken into account.
+
+\section{Equivalence of arbitrary optimal towers}
+
+The formalization proves the direct comparison theorem
+\begin{center}
+\lean{any_two_optimal_lossless_towers_are_projectively_equivalent}.
+\end{center}
+
+If $\Code$ and $\mathcal{D}$ are two optimal lossless towers with the same capacity $b$, the canonical levelwise equivalences $\Phi_k:\Code_k\simeq\mathcal{D}_k$ satisfy
+\[
+  \Phi_k\circ T_k^{\Code}=T_k^{\mathcal{D}}\circ\Phi_k
+\]
+and
+\[
+  \Phi_k\circ P_{k,m}^{\Code}
+  =P_{k,m}^{\mathcal{D}}\circ\Phi_m.
+\]
+
+Thus representation change preserves the full successor/projective mechanics.
+
+\section{Finite local cells}
+
+Let \lean{Local} be any finite local state type and define a depth-$k$ code by
+\[
+  \operatorname{LocalWord}(\mathrm{Local},k)=\Fin(k)\to\mathrm{Local}.
+\]
+No positional semantics is built into this type. Its cardinality is
+\[
+  \card{\operatorname{LocalWord}(\mathrm{Local},k)}
+  =\card{\mathrm{Local}}^k.
+\]
+Set
+\[
+  b=\card{\mathrm{Local}}.
+\]
+Any injective encoding
+\[
+  \Fin(b^k)\to\operatorname{LocalWord}(\mathrm{Local},k)
+\]
+is therefore automatically bijective.
+
+The theorem
+\begin{center}
+\lean{universal_finiteLocal_lossless_representation_collapses_to_carry}
+\end{center}
+then supplies the complete universal certificate.
+
+This specialization captures the slogan
+\[
+\boxed{
+\text{finite local capacity}
++
+\text{complete exact quantitative occupancy}
+\Longrightarrow
+\text{carry projective dynamics up to coordinates}.
+}
+\]
+
+\section{Complementary constructive route}
+
+The universal theorem is a rigidity result: it starts from the complete finite quantity windows and proves that optimal lossless recoding cannot alter their mechanics.
+
+The repository also contains a complementary constructive program. Its formal chain is
+\[
+\begin{gathered}
+\text{finite-state obstruction}
+\to\text{information escape}
+\to\text{unbounded distinguishing depth}
+\to\text{unit dynamics}\\
+\to\text{local recurrence}
+\to\text{emergent capacity}
+\to\text{cycle coordinates}
+\to\text{emergent quotient/remainder}\\
+\to\text{boundary transport}
+\to\text{carry}
+\to\text{finite positional expansion}
+\to\text{intrinsic digit uniqueness}.
+\end{gathered}
+\]
+
+The construction intentionally avoids using natural-number division or modulo to define the emergent coordinates, and avoids using \lean{Nat.digits} to define the emergent digit list. Classical operations appear only as downstream uniqueness-based crosswalks.
+
+Representative theorems include \lean{existsUnique_emergentLocalCapacity}, \lean{existsUnique_cycleCoordinates}, \lean{emergentQuotientRemainder_spec}, \lean{emergent_step_at_boundary_is_oneCarry}, \lean{emergent_weighted_positional_transport}, and \lean{existsUnique_intrinsicCanonicalExpansion}.
+
+The earlier \lean{existsUnique_foundationalCapstone} remains a valid theorem packaging one explicit operational emergence route. It is no longer the maximal theorem of the repository.
+
+The two branches answer different questions:
+\begin{itemize}
+\item \emph{construction}: how can quotient/remainder, carry, and canonical digits be built without assuming them?
+\item \emph{rigidity}: can optimal lossless recoding create a genuinely different exact quantitative mechanics?
+\end{itemize}
+The universal theorem answers the second question negatively.
 
 \section{Related work}
 
-The theorem intersects several established literatures, but its logical direction differs from the usual setup.
+\subsection{Numeration and automata}
 
-\subsection{Automata and arithmetic in numeration systems}
+Finite automata and transducers have long been used to study normalization and arithmetic in established numeration systems \cite{Frougny1992,Frougny1999,FrougnySakarovitch2010}. Abstract numeration systems and generalized radix systems broaden the possible representation languages \cite{LecomteRigo2010,Rigo2014,AkiyamaPetho2002,AkiyamaEtAl2004}.
 
-Finite automata and transducers have long been used to study number representation, normalization, and addition in integer-base, real-base, and recurrence-based systems \cite{Frougny1992,Frougny1999,FrougnySakarovitch2010}. Those works normally begin with a numeration architecture---a base, recurrence, digit set, or representation language---and study the computational behavior of arithmetic inside it. The present work begins earlier in the logical chain: the finite capacity later serving as a radix is derived from local dynamics rather than supplied as part of the numeration system.
-
-\subsection{Abstract numeration systems}
-
-Abstract numeration systems encode integers by words in ordered languages, typically regular languages, and support a broad theory of recognizability and automaticity \cite{LecomteRigo2010,Rigo2014}. This framework is more general than fixed-radix notation, but a representation language over a finite alphabet is already part of the system. In contrast, no digit language is primitive in the capstone; the digit list is constructed only after the local return capacity and bounded cycle coordinates have been derived.
-
-\subsection{Canonical number systems}
-
-Canonical number-system theory studies finite and unique expansions for prescribed algebraic or polynomial bases and digit sets \cite{AkiyamaPetho2002,AkiyamaEtAl2004}. Our intrinsic uniqueness theorem reaches an analogous canonicality property for the external clock, but the direction is different: the base-like capacity is obtained dynamically before the finite expansion is constructed.
-
-\subsection{Odometers and dynamical numeration}
-
-Odometers provide a particularly close dynamical neighbor. Grabner, Liardet, and Tichy construct $G$-odometers from $G$-scale expansions, and the wider dynamical theory of numeration includes beta systems, abstract systems, shift radix systems, $G$-scales, and odometers \cite{GrabnerLiardetTichy1995,BaratBertheLiardetThuswaldner2006}. In that literature, the numeration system generates a successor dynamics. The present capstone reverses part of this direction: a constrained successor dynamics generates the fixed-capacity positional structure.
+These theories normally include a numeration architecture in the input. Our code type is opaque. The contribution is therefore a rigidity theorem about exact finite quantitative coding rather than a new normalization algorithm for a prescribed language.
 
 \subsection{Carry propagation}
 
-Carry propagation has been studied algorithmically and probabilistically in standard and nonstandard digit systems \cite{Frougny1999,HeubergerKropfProdinger2017}. Berth{\'e}, Frougny, Rigo, and Sakarovitch study the carry propagation of the successor function across several classes of numeration systems \cite{BertheFrougnyRigoSakarovitch2020}. Their starting point is an existing numeration representation; the present work isolates an earlier structural event---the emergence of the reset-plus-transport boundary that is only later identified as carry.
+Berth\'e, Frougny, Rigo, and Sakarovitch study carry propagation of successor in several classes of numeration systems \cite{BertheFrougnyRigoSakarovitch2020}; signed-digit carry phenomena are also studied by Heuberger, Kropf, and Prodinger \cite{HeubergerKropfProdinger2017}. These works begin with an established representation system and analyze digit changes under successor.
+
+Our theorem addresses an invariant finite event upstream of such statistics: the wrap corresponding to carry cannot be removed by optimal lossless recoding.
+
+\subsection{Odometers and adding machines}
+
+Odometers are the closest dynamical neighbor. Classical constructions use finite cyclic factors, addition by one, and inverse/projective systems with residual connecting maps \cite{GrabnerLiardetTichy1995,BaratBertheLiardetThuswaldner2006}.
+
+We do not claim that odometer dynamics or inverse limits are new. The theorem direction is different. Rather than constructing a projective cyclic system and studying it, we start with arbitrary opaque optimal finite codes and prove that their exact successor and every coherent cross-depth map are uniquely conjugate to that system. The result can therefore be read as a finite projective rigidity theorem whose canonical representative is the base-$b$ odometer tower.
 
 \subsection{Information-lossless finite-state coding}
 
-Information-lossless finite-state compression uses an injectivity/recoverability condition structurally related to our primitive notion of faithfulness; finite-state dimension can be characterized through information-lossless finite-state compressors \cite{DaiLathropLutzMayordomo2004}. The target problem is different, however: finite-state compression theory measures compressibility of sequences rather than deriving a numeral architecture from local finite-state persistence.
+Finite-state dimension is characterized using information-lossless finite-state compressors \cite{DaiLathropLutzMayordomo2004}. The shared theme is preservation of distinguishability under finite-state representation. That literature studies asymptotic compression of sequences, whereas the present theorem concerns complete finite quantity windows under an exact cardinal budget and derives successor/projective rigidity from the resulting bijectivity.
 
-\subsection{Periodic enumeration and positional equations}
+\subsection{Periodic enumeration}
 
-Manca's study of Archimedean periodic enumeration systems is the closest structural precedent found in this scoped review for deriving a positional equation from periodic organization \cite{Manca2024}. For a monotone enumeration system of period $p$, a recurrence of the form
+Manca derives a positional base recurrence from a periodic monotone enumeration system \cite{Manca2024}. This is an important structural precedent for deriving positional equations from periodic organization. Manca's framework already includes numeral strings and a period. Our universal branch assumes no numeral syntax on the arbitrary code; the complementary constructive branch separately derives a local capacity before canonical digits are introduced.
+
+\subsection{Novelty statement}
+
+The literature surveyed here already contains finite-state numeration, carry dynamics, adding machines, projective cyclic factors, information-lossless coding, and derivations of positional equations from periodic systems. We therefore make no claim that those ingredients are individually new.
+
+The scoped contribution is the following implication: arbitrary opaque optimal lossless finite codes of the complete $b^k$ quantity windows are forced, at every depth and across every ordered pair of depths, to be conjugate/projectively equivalent to the canonical residual/carry system. We did not find this exact rigidity statement in the literature reviewed for this manuscript. This is a scoped observation, not an exhaustive historical priority claim.
+
+\section{Formal verification}
+
+The universal branch is implemented in the Lean modules
+\begin{itemize}
+\item \lean{UniversalLosslessCompression.lean},
+\item \lean{UniversalLosslessCompressionTower.lean},
+\item \lean{UniversalCrossDepthCarryCoherence.lean},
+\item \lean{UniversalProjectiveCarryTower.lean},
+\item \lean{UniversalCarryCollapseCapstone.lean}.
+\end{itemize}
+
+The public audit surface is \lean{QuantityRepresentationFoundations/Audit.lean}. It includes \lean{#print axioms} commands for the capstone theorem, its finite-local specialization, and the two-tower projective-equivalence theorem.
+
+The project pins its Carry Geometry dependency by commit through Lake, so the carry predicate used in the finite-window bridge is part of the reproducible formal dependency graph.
+
+\section{Scope and limitations}
+
+The theorem is universal within a precise class. At depth $k$, it assumes an injective map
 \[
- \operatorname{value}(\alpha x)
- =p\,\operatorname{value}(\alpha)+\operatorname{value}(x)
+  e_k:\Fin(b^k)\hookrightarrow\Code_k
 \]
-leads to the usual positional expansion. The primitive system there already consists of finite symbols, strings, an append operation, monotonic enumeration, and a period $p$. The present capstone moves the period itself downstream: the capacity $b$ is first derived as the least positive return of finite autonomous injective local dynamics, after which digit coordinates and positional expansion are constructed.
+with
+\[
+  \card{\Code_k}\le b^k.
+\]
+This is the formal notion of optimal finite-state lossless coding used here.
 
-\subsection{Scoped novelty statement}
+Several distinctions are important.
 
-The literature reviewed above contains many derivations and generalizations of positional formulas, numeration dynamics, automata for arithmetic, and carry behavior. We therefore do not claim that positional structure has never been derived from periodicity or dynamics. The narrower distinction supported by this review is the following:
+First, redundant codes with $\card{\Code_k}>b^k$ may contain non-quantitative degrees of freedom. The theorem does not claim that those redundant states disappear.
 
-\begin{quote}
-Among the sources examined here, we did not find the same implication from the same primitive data: an abstract source trajectory with globally faithful split encoding and finite autonomous information-preserving local dynamics, from which the radix-like capacity itself is derived before quotient, remainder, digits, or carry are introduced.
-\end{quote}
+Second, this is not an asymptotic source-coding theorem about probability distributions or variable-length descriptions.
 
-This is a scoped literature conclusion, not an exhaustive historical priority claim.
+Third, carry is asserted dynamically and invariantly. A recoded implementation need not display a visually recognizable ripple-carry pattern in its raw symbols.
 
-\section{Non-circularity, scope, and non-claims}
+Fourth, the result does not classify all possible numeration languages as syntactic fixed-radix systems. It proves that an optimal lossless code for the complete $b^k$ quantity windows has no different exact successor/projective mechanics after coordinate change.
 
-The theorem should be read with its boundaries intact.
+\section{Discussion: conservation under representation change}
 
-\begin{enumerate}[label=(\roman*)]
-\item It does not prove that every injective coding is positional.
-\item Faithfulness alone does not imply positional notation.
-\item The layered-depth branch does not currently derive the unit trajectory or autonomous local dynamics.
-\item A finite local system can have period one unless local nontriviality is imposed.
-\item The positional representation constructed here lives on the external clock $\N$ of the injective trajectory. No arithmetic on the abstract source type $Q$ is assumed or derived by the capstone.
-\item The literature review is scoped and does not support an unconditional claim of historical priority.
-\end{enumerate}
+The main theorem is naturally interpreted as a conservation principle. A change of representation may alter the appearance of code states, but under optimal finite-state losslessness it cannot alter:
+\begin{itemize}
+\item the number of quantitative states at depth $k$;
+\item the exact unit-successor orbit;
+\item the quantitative wrap/carry event;
+\item the unique coherent reduction from a deeper window to a shallower one;
+\item the projective composition law of those reductions.
+\end{itemize}
 
-These are not defects to be hidden; they identify the exact theorem proved and the principal directions for strengthening it.
+In dynamical language, all optimal lossless codes realize the same finite adding-machine factors. In projective language, they are isomorphic presentations of the same residual tower. In positional language, the canonical representative is the carry hierarchy.
 
-\section{Discussion and open problems}
-
-The formal chain suggests several next questions.
-
-\paragraph{Deriving the dynamic hypotheses.}
-Can `UnitTrajectory` and `AutonomousLocalDynamics` themselves be obtained from weaker principles of admissible change of representation, composition, or conservation of distinguishability?
-
-\paragraph{Internalizing the clock.}
-Can the external natural-number clock be replaced by an intrinsic ordered monoid or successor object on the quantity carrier, while preserving the construction of cycle coordinates and canonical expansion?
-
-\paragraph{Weakening local injectivity.}
-Injectivity of the local step is used to cancel recurrent prefixes and eliminate transient tails. Which weaker hypotheses---reversibility on the observed orbit, eventual bijectivity, or recurrence assumptions---suffice?
-
-\paragraph{Variable capacities.}
-The present capstone yields a fixed capacity $b$. Can analogous arguments derive mixed-radix, $G$-scale, or more general abstract numeration structures from nonstationary local dynamics?
-
-\paragraph{Formal comparison with odometers.}
-The reversal between ``numeration $\to$ odometer'' and ``operational dynamics $\to$ numeration'' deserves a precise equivalence theorem in the fixed-radix case.
+The conserved object is therefore not a particular numeral spelling. It is quantitative information together with its exact successor and depth-consistency structure.
 
 \section{Conclusion}
 
-A positional numeral system need not be inserted at the first line of the formal development. Under an explicit operational model, finite local capacity, persistent distinguishability, and autonomous injective unit-step dynamics force a unique nontrivial local return capacity. That capacity supports recursively generated cycle/residual coordinates, a reset-plus-transport boundary, hierarchical positional transport, finite expansion, and intrinsic canonical uniqueness. Classical quotient, remainder, digits, and carry normalization then appear as downstream identifications.
+We formalized a universal rigidity theorem for optimal lossless finite representation of quantity. At each depth, injectivity and the optimal state budget force an arbitrary finite code to have exactly the cardinality of the complete quantity window, hence to be bijective with it. Exact unit successor is unique up to conjugacy, and its wrap event is exactly the carry-through-depth event. Across depths, zero preservation and successor equivariance force residual reduction modulo the lower capacity. These maps satisfy identity and projective composition laws. Consequently every arbitrary optimal lossless tower is projectively equivalent to the canonical residual/carry tower, and any two such towers are equivalent through changes of representation preserving the complete quantitative mechanics.
 
-The result is deliberately narrower than a universal characterization of representation. Its value is the exactness of the implication: every operational hypothesis is visible, every intermediate object is separately constructed, and the complete chain is checked by the Lean kernel.
+For arbitrary finite local cells, the capacity parameter is simply the number of available local states, so the theorem applies without assigning positional semantics to those cells in advance.
 
-\appendix
-
-\section{Lean theorem map}
-
-The principal formal modules are:
-
-\begin{center}
-\begin{tabular}{@{}ll@{}}
-\toprule
-Mathematical role & Lean module / theorem \\
-\midrule
-Finite-state obstruction & \texttt{FiniteStateObstruction.lean} \\
-Information escape & \texttt{InformationEscape.lean} \\
-Unbounded finite-layer depth & \texttt{UnboundedExtension.lean}, \texttt{UnboundedPrefixDepth.lean} \\
-First distinguishing depth & \texttt{FirstDistinguishingDepth.lean} \\
-Unit trajectory recurrence & \texttt{UnitDynamicsLocalRecurrence.lean} \\
-Emergent capacity & \texttt{FirstLocalReturnCapacity.lean} \\
-Cycle decomposition & \texttt{EmergentCycleDecomposition.lean} \\
-Recursive $Q_b,R_b$ & \texttt{EmergentQuotientRemainder.lean} \\
-Classical QR crosswalk & \texttt{ClassicalQRCrosswalk.lean} \\
-Carry normalization bridge & \texttt{CarryGeometryNormalizationBridge.lean} \\
-Weighted transport & \texttt{EmergentWeightedPositionalTransport.lean} \\
-Finite expansion & \texttt{IteratedEmergentPositionalExpansion.lean} \\
-Canonical digit list & \texttt{CanonicalEmergentDigits.lean} \\
-Intrinsic uniqueness & \texttt{IntrinsicPositionalUniqueness.lean} \\
-Capstone & \texttt{FoundationalCapstone.lean} \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-The kernel-facing audit surface is \texttt{QuantityRepresentationFoundations/Audit.lean}.
+A complementary formal branch constructs emergent quotient--remainder coordinates, carry transport, and canonical positional digits from explicit operational hypotheses. Together, the two branches separate construction from rigidity: one explains how familiar arithmetic coordinates can arise without circular definitions; the other proves that optimal lossless recoding cannot escape the residual/carry projective dynamics.
 
 \bibliographystyle{plain}
 \bibliography{references}
