@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite the versioned research release."
+title: "Conservation of Quantitative Information under Change of Representation: Universal Carry Rigidity of Optimal Lossless Finite Quantity Codes"
+version: 1.0.0
+date-released: 2026-09-15
+type: software
+authors:
+  - given-names: Thiago
+    family-names: Massensini
+abstract: >-
+  We prove a representation-rigidity theorem for optimal lossless finite quantitative coding.
+  At every finite depth, an arbitrary opaque code that faithfully represents all b^k quantity
+  states using at most b^k code states is forced to be bijective with the canonical finite
+  quantity window. Exact unit successor is unique up to conjugacy, its wrap event is exactly
+  carry through the represented depth, and every zero-preserving successor-equivariant map
+  between ordered depths is uniquely residual reduction after decode/re-encode. The forced
+  projections satisfy identity and projective composition, so every optimal lossless tower is
+  projectively equivalent to the canonical residual/carry tower. The complete development is
+  formalized and kernel-audited in Lean 4.
+keywords:
+  - Lean 4
+  - formal verification
+  - positional numeration
+  - carry
+  - lossless compression
+  - finite-state coding
+  - projective systems
+  - odometers
+  - quotient-remainder
+repository-code: "https://github.com/thiagomassensini/quantity-representation-foundations"
+url: "https://github.com/thiagomassensini/quantity-representation-foundations"

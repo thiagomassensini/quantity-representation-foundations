@@ -1,0 +1,26 @@
+{
+  "creators": [
+    {
+      "name": "Massensini, Thiago"
+    }
+  ],
+  "title": "Conservation of Quantitative Information under Change of Representation: Universal Carry Rigidity of Optimal Lossless Finite Quantity Codes",
+  "description": "We prove a representation-rigidity theorem for optimal lossless finite quantitative coding. At every finite depth, an arbitrary opaque code that faithfully represents all b^k quantity states using at most b^k code states is forced to be bijective with the canonical finite quantity window. Exact unit successor is unique up to conjugacy, its wrap event is exactly carry through the represented depth, and every zero-preserving successor-equivariant map between ordered depths is uniquely residual reduction after decode/re-encode. The forced projections satisfy identity and projective composition, so every optimal lossless tower is projectively equivalent to the canonical residual/carry tower. The complete development is formalized and kernel-audited in Lean 4.",
+  "version": "1.0.0",
+  "publication_date": "2026-09-15",
+  "upload_type": "publication",
+  "publication_type": "preprint",
+  "access_right": "open",
+  "language": "eng",
+  "keywords": [
+    "Lean 4",
+    "formal verification",
+    "positional numeration",
+    "carry",
+    "lossless compression",
+    "finite-state coding",
+    "projective systems",
+    "odometers",
+    "quotient-remainder"
+  ]
+}
