@@ -1,4 +1,4 @@
-import QuantityRepresentationFoundations
+import QuantityRepresentationFoundations.UniversalCarryCollapseCapstone
 
 #print axioms QuantityRepresentationFoundations.LosslessCompressedWindow.card_eq_windowSize
 #print axioms QuantityRepresentationFoundations.LosslessCompressedWindow.encode_bijective
