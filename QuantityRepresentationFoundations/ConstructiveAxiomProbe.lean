@@ -22,6 +22,12 @@ structure TinyFin (n : ℕ) (Code : Type u) where
   left : ∀ a : Fin n, dec (enc a) = a
   right : ∀ c : Code, enc (dec c) = c
 
+structure TinyPow (b k : ℕ) (Code : Type u) where
+  enc : Fin (b ^ k) → Code
+  dec : Code → Fin (b ^ k)
+  left : ∀ a : Fin (b ^ k), dec (enc a) = a
+  right : ∀ c : Code, enc (dec c) = c
+
 variable {b k : ℕ} {Code : Type u}
 
 theorem raw_decode_encode_field_probe
@@ -36,6 +42,7 @@ end QuantityRepresentationFoundations.ConstructiveAxiomProbe
 #print axioms QuantityRepresentationFoundations.ConstructiveAxiomProbe.Tiny.law
 #print axioms QuantityRepresentationFoundations.ConstructiveAxiomProbe.TinyPair.left
 #print axioms QuantityRepresentationFoundations.ConstructiveAxiomProbe.TinyFin.left
+#print axioms QuantityRepresentationFoundations.ConstructiveAxiomProbe.TinyPow.left
 #print axioms QuantityRepresentationFoundations.ExplicitLosslessWindow.decode_encode_law
 #print axioms QuantityRepresentationFoundations.ConstructiveAxiomProbe.raw_decode_encode_field_probe
 #print axioms QuantityRepresentationFoundations.ExplicitLosslessTower.explicit_lossless_tower_collapses_to_carry
