@@ -49,7 +49,7 @@ variable [Fintype Code] [Fintype Code₁] [Fintype Code₂]
 
 /--
 A lossless code for `b^k` distinguishable states cannot use fewer than `b^k`
-states.  Together with the compression budget this forces exact cardinality.
+states. Together with the compression budget this forces exact cardinality.
 -/
 theorem card_eq_windowSize
     (rep : LosslessCompressedWindow b k Code) :
@@ -62,7 +62,7 @@ theorem card_eq_windowSize
 theorem encode_bijective
     (rep : LosslessCompressedWindow b k Code) :
     Function.Bijective rep.encode := by
-  apply (Fintype.bijective_iff_injective_and_card).2
+  apply (Fintype.bijective_iff_injective_and_card rep.encode).2
   refine ⟨rep.faithful, ?_⟩
   simpa [rep.card_eq_windowSize]
 
@@ -80,6 +80,20 @@ noncomputable def windowEquiv
     (n : Fin (b ^ k)) :
     rep.windowEquiv n = rep.encode n := rfl
 
+@[simp] theorem windowEquiv_symm_encode
+    (rep : LosslessCompressedWindow b k Code)
+    (n : Fin (b ^ k)) :
+    rep.windowEquiv.symm (rep.encode n) = n := by
+  change rep.windowEquiv.symm (rep.windowEquiv n) = n
+  exact rep.windowEquiv.symm_apply_apply n
+
+/-- The explicit zero state of a nonempty canonical finite window. -/
+def windowZero (b k : ℕ) (hb : 0 < b) : Fin (b ^ k) :=
+  ⟨0, pow_pos hb k⟩
+
+@[simp] theorem windowZero_val (b k : ℕ) (hb : 0 < b) :
+    (windowZero b k hb).val = 0 := rfl
+
 /--
 Canonical cyclic unit successor on the finite depth-`k` quantity window.
 The wrap at the top of the window is the finite shadow of carry through all
@@ -96,10 +110,20 @@ lowest `k` positional places.
 -/
 theorem windowSuccessor_eq_zero_iff_carry
     (b k : ℕ) (hb : 0 < b) (n : Fin (b ^ k)) :
-    windowSuccessor b k hb n = 0 ↔
+    windowSuccessor b k hb n = windowZero b k hb ↔
       CarryGeometry.carryAfterIncrementAtDepth b k n.val := by
-  simp [windowSuccessor, CarryGeometry.carryAfterIncrementAtDepth,
-    CarryGeometry.placeValue, Nat.ModEq]
+  constructor
+  · intro h
+    have hmod : (n.val + 1) % (b ^ k) = 0 := by
+      exact congrArg Fin.val h
+    simpa [CarryGeometry.carryAfterIncrementAtDepth,
+      CarryGeometry.placeValue, Nat.ModEq] using hmod
+  · intro hcarry
+    have hmod : (n.val + 1) % (b ^ k) = 0 := by
+      simpa [CarryGeometry.carryAfterIncrementAtDepth,
+        CarryGeometry.placeValue, Nat.ModEq] using hcarry
+    apply Fin.ext
+    exact hmod
 
 /--
 Successor dynamics transported into an arbitrary optimal lossless code.
@@ -118,22 +142,26 @@ noncomputable def codeSuccessor
     (hb : 0 < b) (n : Fin (b ^ k)) :
     rep.codeSuccessor hb (rep.encode n) =
       rep.encode (windowSuccessor b k hb n) := by
-  simp [codeSuccessor]
+  unfold codeSuccessor
+  rw [rep.windowEquiv_symm_encode n]
+  rfl
 
 /--
 Every optimal lossless code has a distinguished wrap event, namely the image of
-zero.  That code-level event is equivalent to the canonical arithmetic carry
-event, regardless of the code's coordinates.
+the canonical zero state. That code-level event is equivalent to the canonical
+arithmetic carry event, regardless of the code's coordinates.
 -/
 theorem code_wrap_iff_carry
     (rep : LosslessCompressedWindow b k Code)
     (hb : 0 < b) (n : Fin (b ^ k)) :
-    rep.codeSuccessor hb (rep.encode n) = rep.encode 0 ↔
+    rep.codeSuccessor hb (rep.encode n) =
+        rep.encode (windowZero b k hb) ↔
       CarryGeometry.carryAfterIncrementAtDepth b k n.val := by
   rw [rep.codeSuccessor_encode hb n]
   constructor
   · intro h
-    have hwindow : windowSuccessor b k hb n = 0 := rep.faithful h
+    have hwindow :
+        windowSuccessor b k hb n = windowZero b k hb := rep.faithful h
     exact (windowSuccessor_eq_zero_iff_carry b k hb n).1 hwindow
   · intro hcarry
     apply congrArg rep.encode
@@ -154,7 +182,9 @@ noncomputable def changeOfRepresentation
     (right : LosslessCompressedWindow b k Code₂)
     (n : Fin (b ^ k)) :
     left.changeOfRepresentation right (left.encode n) = right.encode n := by
-  simp [changeOfRepresentation]
+  unfold changeOfRepresentation
+  rw [left.windowEquiv_symm_encode n]
+  rfl
 
 /--
 Unit-successor dynamics is invariant under arbitrary optimal lossless changes
@@ -166,7 +196,8 @@ theorem changeOfRepresentation_conjugates_successor
     (hb : 0 < b) (c : Code₁) :
     left.changeOfRepresentation right (left.codeSuccessor hb c) =
       right.codeSuccessor hb (left.changeOfRepresentation right c) := by
-  simp [changeOfRepresentation, codeSuccessor]
+  unfold changeOfRepresentation codeSuccessor
+  simp
 
 /--
 Finite-window universal compression theorem.
@@ -182,7 +213,8 @@ theorem universal_lossless_compression_forces_carry_conjugacy
     Fintype.card Code = b ^ k ∧
       Function.Bijective rep.encode ∧
       ∀ n : Fin (b ^ k),
-        rep.codeSuccessor hb (rep.encode n) = rep.encode 0 ↔
+        rep.codeSuccessor hb (rep.encode n) =
+            rep.encode (windowZero b k hb) ↔
           CarryGeometry.carryAfterIncrementAtDepth b k n.val := by
   exact ⟨rep.card_eq_windowSize, rep.encode_bijective,
     fun n => rep.code_wrap_iff_carry hb n⟩
