@@ -170,7 +170,7 @@ theorem existsUnique_emergentLocalCapacity
     exact Nat.find_min' ⟨b₀, hb₀⟩ hn
   refine ⟨b, ⟨hb, hmin⟩, ?_⟩
   intro c hc
-  exact Nat.le_antisymm (hmin c hc.1) (hc.2 b hb)
+  exact Nat.le_antisymm (hc.2 b hb) (hmin c hc.1)
 
 /--
 The canonical emergent capacity is automatically a period of every local
