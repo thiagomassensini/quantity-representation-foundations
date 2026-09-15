@@ -1,0 +1,577 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage[margin=1in]{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Qe}{Q_b}
+\newcommand{\Ree}{R_b}
+\newcommand{\state}{q}
+\newcommand{\Local}{\mathcal{L}}
+\newcommand{\Ext}{\mathcal{X}}
+\newcommand{\Enc}{\mathcal{E}}
+\newcommand{\Obs}{\ell}
+
+\title{Conservation of Quantitative Information under Change of Representation}
+\author{Thiago Massensini}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We study a restricted but explicit question about the structural origin of positional representation. Rather than assuming a radix, quotient, remainder, digit alphabet, positional weights, or carry operation, we begin with an abstract quantity state space equipped with an injective unit-step trajectory, a globally faithful split representation into a finite local component and an unrestricted extension component, and autonomous injective local dynamics. A nontrivial first local step excludes the degenerate period-one case.
+
+From these hypotheses we derive a unique least positive local return $b>1$. Relative to this emergent capacity, every external step count $n\in\N$ admits unique cycle/residual coordinates
+\[
+ n=q b+r,\qquad 0\le r<b,
+\]
+constructed without taking natural-number division or modulo as primitive operations. The successor dynamics has exactly two local regimes: residual advance inside the cycle, or residual reset together with an increment of the completed-cycle coordinate at the boundary. The latter transition is identified downstream with ordinary carry normalization. Iteration yields a finite positional expansion and an intrinsically unique canonical digit list. Only after these constructions are complete do we identify the emergent coordinates with $n/b$ and $n\bmod b$, and the emergent digit list with the standard base-$b$ representation.
+
+All principal statements are formalized in Lean~4. The result does not claim that arbitrary faithfulness forces positional notation. Its contribution is a machine-checked implication from an explicit finite-local operational model to canonical positional structure on the external unit-step clock.
+\end{abstract}
+
+\section{Introduction}
+
+Positional numeral systems are usually introduced by fixing a base $b>1$, a finite digit alphabet, and the evaluation rule
+\[
+ n=\sum_{j=0}^{k} d_j b^j,
+ \qquad 0\le d_j<b.
+\]
+Quotient--remainder decomposition, digit extraction, normalization, and carry are then developed inside that architecture.
+
+This paper asks a logically earlier question:
+
+\begin{quote}
+What representational structure is forced when unbounded distinguishable quantitative states must evolve by persistent unit steps while a faithful representation exposes only finitely many local states?
+\end{quote}
+
+The answer obtained here is conditional rather than universal. We isolate an explicit operational system and prove that, under its hypotheses, a unique nontrivial local capacity emerges. That capacity supports unique cycle/residual coordinates, a carry boundary, hierarchical transport, finite positional expansion, and intrinsic uniqueness of the canonical representation.
+
+The methodological constraint is non-circularity: the primitive system contains no radix, quotient, remainder, division, modulo, digit list, positional weight, or carry operation. Classical arithmetic interfaces are allowed only after independently constructed objects have already satisfied a unique specification.
+
+The source quantity type remains abstract. Natural numbers enter as the external clock of a nonrepeating unit trajectory. Accordingly, the positional representation derived in the present theorem is a canonical representation of that external step clock, not yet an internally derived arithmetic structure on an arbitrary carrier $Q$.
+
+\subsection{Contributions}
+
+The formal development establishes the following chain.
+
+\begin{enumerate}[label=(\roman*)]
+\item An infinite distinguishable source cannot inject into a finite state space.
+\item In a faithful split representation with finite local state, local collisions force compensating distinctions in the extension component.
+\item No fixed finite tower of finite layers suffices for a faithful representation of an infinite source; in a countably layered model, distinguishing information appears beyond every finite prefix.
+\item Under explicit unit-step dynamics, finite local observation must recur arbitrarily late.
+\item Under autonomous injective local evolution, there is a unique least positive local return. If the first local step changes the observation, this capacity satisfies $b>1$.
+\item Relative to $b$, cycle/residual coordinates are constructed recursively and proved unique without primitive natural-number division or modulo.
+\item The boundary successor transition is exactly residual reset plus one transported completed-cycle unit; downstream it coincides with carry normalization.
+\item Iterated transport yields a finite positional expansion, and a recursively generated digit list is intrinsically canonical and unique.
+\item Standard division, modulo, and base-$b$ digits are recovered only as downstream identifications.
+\end{enumerate}
+
+The complete capstone is formalized by the Lean theorem
+\texttt{existsUnique\_foundationalCapstone}.
+
+\section{Formal setting and logical discipline}
+
+\subsection{Faithfulness}
+
+Let $Q$ be a type of source states and $S$ a representation space.
+
+\begin{definition}[Faithful representation]
+A map $E:Q\to S$ is \emph{faithful} if it is injective.
+\end{definition}
+
+No arithmetic structure is imposed on $Q$ or $S$ at this level.
+
+If $Q$ is infinite and $S$ finite, no faithful representation exists. This is the first finite-state obstruction and is purely cardinal.
+
+\subsection{Split representation}
+
+We next consider a representation
+\[
+ \Enc:Q\longrightarrow \Local\times\Ext,
+\]
+where $\Local$ is a local state space and $\Ext$ is an unrestricted extension channel.
+
+If $\Enc$ is injective and two distinct states have the same local component, then their extension components must differ. With $Q$ infinite and $\Local$ finite, such a local collision is unavoidable.
+
+Thus finite local capacity does not destroy global distinguishability; instead it forces distinguishing information outside the local component.
+
+\subsection{A separate layered-depth branch}
+
+The formal development also studies representations by countably many finite layers. It proves that no fixed finite depth can be faithful on an infinite source, and that in any faithful countably layered representation by finite layers, distinct states can agree below arbitrarily large cutoffs while differing at or above those cutoffs. A unique first distinguishing depth is then defined for each distinct pair.
+
+This branch is conceptually upstream of positional depth, but it is important to state a precise logical boundary:
+
+\begin{remark}[Current boundary]
+The present capstone does \emph{not} derive the unit-step trajectory or autonomous local dynamics from the layered-depth theorems. Those dynamic objects are explicit hypotheses of the capstone system.
+\end{remark}
+
+\section{Operational unit dynamics}
+
+\subsection{Unit trajectory}
+
+We assume a sequence of quantity states
+\[
+ \state_0,\state_1,\state_2,\ldots\in Q
+\]
+with a global transition $T:Q\to Q$ satisfying
+\[
+ \state_{n+1}=T(\state_n),
+\]
+and the trajectory map $n\mapsto \state_n$ is injective.
+
+The natural number $n$ is therefore an external count of unit steps, not an assumed arithmetic coordinate on $Q$.
+
+\subsection{Autonomous local dynamics}
+
+Let $\Obs:Q\to\Local$ be the local observation and let $s:\Local\to\Local$ satisfy
+\[
+ \Obs(Tq)=s(\Obs(q)).
+\]
+We assume $s$ is injective. Thus the local transition does not merge distinct local states.
+
+The local observation is also required to agree with the local component of the globally faithful representation:
+\[
+ \Obs(q)=\pi_1(\Enc(q)).
+\]
+Finally, the first unit step is nontrivial locally:
+\[
+ \Obs(\state_1)\ne \Obs(\state_0).
+\]
+
+These are the operational hypotheses packaged in the Lean structure
+\texttt{FoundationalOperationalRepresentation}.
+
+\section{Finite local recurrence and information escape}
+
+Because the trajectory is injective, it contains infinitely many distinct global states. If $\Local$ is finite, the observed trajectory must recur locally. More strongly, for every cutoff $N$ there exist $m<n$ with $N\le m$ such that
+\[
+ \Obs(\state_m)=\Obs(\state_n).
+\]
+Global faithfulness then forces
+\[
+ \pi_2\Enc(\state_m)\ne \pi_2\Enc(\state_n).
+\]
+
+Thus recurrent local states coexist with persistent global distinction. This is the dynamic form of information escape from finite local capacity.
+
+\section{Emergent local capacity}
+
+Autonomous local iteration gives
+\[
+ \Obs(\state_n)=s^n(\Obs(\state_0)).
+\]
+Local recurrence somewhere does not by itself imply return to the initial local state, because a finite map can possess transient tails. Injectivity of $s$ rules out this loss of predecessor information: a recurrence between two iterates can be cancelled back to a positive return of the initial state.
+
+\begin{definition}[Positive local return]
+A positive integer $b$ is a positive local return if
+\[
+ b>0,
+ \qquad
+ \Obs(\state_b)=\Obs(\state_0).
+\]
+\end{definition}
+
+\begin{definition}[Emergent local capacity]
+An integer $b$ is the emergent local capacity if it is the least positive local return.
+\end{definition}
+
+Finite autonomous injective local dynamics yields a unique such $b$.
+
+\begin{proposition}[Nontrivial capacity]
+If the first local step changes the local observation, then the unique emergent local capacity satisfies
+\[
+ b>1.
+\]
+\end{proposition}
+
+Indeed $b=1$ would identify the first local observation with the initial one, contradicting nontriviality.
+
+Every positive return is a period of the entire local readout, so for the emergent capacity
+\[
+ \Obs(\state_{n+b})=\Obs(\state_n)
+ \qquad(n\in\N).
+\]
+
+\section{Cycle coordinates without primitive division or modulo}
+
+Fix a positive capacity $b$. We define a cycle decomposition by the specification
+\[
+ n=q b+r,
+ \qquad r<b.
+\]
+At this point $q$ and $r$ are not defined using $n/b$ or $n\bmod b$.
+
+Existence is proved constructively by induction on $n$. Starting at $(q,r)=(0,0)$, one successor step has exactly two possibilities:
+\[
+ (q,r)\longmapsto(q,r+1)
+ \quad\text{if }r+1<b,
+\]
+or
+\[
+ (q,r)\longmapsto(q+1,0)
+ \quad\text{if }r+1=b.
+\]
+
+The bounded decomposition is unique: if
+\[
+ q_1b+r_1=q_2b+r_2,
+ \qquad r_1,r_2<b,
+\]
+then the two values lie in the same half-open block
+\[
+ [qb,(q+1)b),
+\]
+forcing $q_1=q_2$ and then $r_1=r_2$.
+
+Hence
+\[
+ \forall n\in\N\;\exists! (q,r)\in\N^2:
+ n=qb+r,\quad r<b.
+\]
+
+\section{Emergent quotient and remainder}
+
+The formalization defines the two coordinates computationally through the successor recursion. Write
+\[
+ \Qe(n)\in\N,
+ \qquad
+ \Ree(n)\in\N
+\]
+for the completed-cycle count and residual position after $n$ unit steps.
+
+They satisfy
+\[
+ n=\Qe(n)b+\Ree(n),
+ \qquad
+ \Ree(n)<b.
+\]
+By uniqueness they are the only bounded cycle coordinates.
+
+The local readout depends only on the residual coordinate:
+\[
+ \Obs(\state_n)=\Obs(\state_{\Ree(n)}).
+\]
+Thus $\Ree(n)$ is operationally the position inside the local cycle, not merely an algebraic remainder.
+
+\section{The carry boundary}
+
+The successor rule for the emergent coordinates is dichotomic.
+
+If
+\[
+ \Ree(n)+1<b,
+\]
+then
+\[
+ \Qe(n+1)=\Qe(n),
+ \qquad
+ \Ree(n+1)=\Ree(n)+1.
+\]
+If
+\[
+ \Ree(n)+1=b,
+\]
+then
+\[
+ \Qe(n+1)=\Qe(n)+1,
+ \qquad
+ \Ree(n+1)=0.
+\]
+
+The second case is the structural boundary event: the finite local position resets while exactly one completed-cycle unit is transported outward.
+
+Only after this dynamic event has been constructed is it compared with the normalization API of the companion Carry Geometry development. The identification is
+\[
+ \Ree(n)=\operatorname{normalizedDigit}(b,n),
+\]
+\[
+ \Qe(n)=\operatorname{carryUnits}(b,n).
+\]
+Thus, within the formal model, carry is the positional reading of the dynamically forced boundary transition.
+
+\section{Weighted hierarchical transport}
+
+At a level $j$, the one-step decomposition becomes
+\[
+ a b^j
+ =\Ree(a)b^j+\Qe(a)b^{j+1}.
+\]
+The residual portion remains at level $j$ while completed cycles reappear one level higher.
+
+The first full cycle illustrates the mechanism transparently:
+\[
+ \Ree(b)=0,
+ \qquad
+ \Qe(b)=1,
+\]
+so
+\[
+ b\,b^j=b^{j+1}.
+\]
+The elementary power law is thereby read as exact transport of one saturated local cycle to one unit at the next level.
+
+\section{Iterated transport and finite expansion}
+
+Define the unresolved quantity after $k$ transport steps recursively by
+\[
+ Q_b^{(0)}(n)=n,
+ \qquad
+ Q_b^{(k+1)}(n)=\Qe(Q_b^{(k)}(n)),
+\]
+and define the residual digit at depth $k$ by
+\[
+ r_k(n)=\Ree(Q_b^{(k)}(n)).
+\]
+For every finite depth $k$,
+\[
+ n=
+ \sum_{i<k} r_i(n)b^i
+ +Q_b^{(k)}(n)b^k.
+\]
+Nothing is discarded: the unresolved information is stored explicitly in the transported tail.
+
+For $b>1$, the decomposition itself implies strict descent of positive transported quantities:
+\[
+ m>0\quad\Longrightarrow\quad \Qe(m)<m.
+\]
+This proof is intrinsic; it does not appeal to classical natural-number division. Hence repeated transport eventually reaches zero:
+\[
+ \exists k:\quad Q_b^{(k)}(n)=0.
+\]
+Therefore
+\[
+ n=\sum_{i<k} r_i(n)b^i,
+ \qquad 0\le r_i(n)<b.
+\]
+
+\section{Canonical emergent digits}
+
+The finite little-endian digit list is defined recursively by
+\[
+ \operatorname{EDig}_b(0)=[],
+\]
+\[
+ \operatorname{EDig}_b(n)
+ =\Ree(n)::\operatorname{EDig}_b(\Qe(n))
+ \qquad(n>0).
+\]
+Termination uses the intrinsic strict descent above.
+
+Before comparison with any library digit function, the formalization proves:
+
+\begin{enumerate}[label=(\alph*)]
+\item exact reconstruction of $n$;
+\item every digit is strictly less than $b$;
+\item a nonempty representation has nonzero most significant digit.
+\end{enumerate}
+
+More strongly, these conditions characterize the representation intrinsically.
+
+\begin{theorem}[Intrinsic positional uniqueness]
+Let $L$ be a finite coefficient list. Suppose all coefficients are $<b$ and a nonempty $L$ has nonzero most significant coefficient. Then
+\[
+ L=\operatorname{EDig}_b(\operatorname{value}_b(L)).
+\]
+Consequently, for every $n$ there exists exactly one admissible finite coefficient list without a leading zero whose value is $n$.
+\end{theorem}
+
+The proof proceeds structurally through the list. If $L=d::T$, then
+\[
+ \operatorname{value}_b(L)
+ =b\,\operatorname{value}_b(T)+d,
+\]
+and uniqueness of bounded cycle decomposition forces
+\[
+ d=\Ree(\operatorname{value}_b(L)),
+\]
+\[
+ \operatorname{value}_b(T)=\Qe(\operatorname{value}_b(L)).
+\]
+The tail is then canonical by induction.
+
+\section{Foundational capstone}
+
+We now collect the assumptions and conclusions in one statement.
+
+\begin{theorem}[Foundational capstone]
+Let $Q$ be an abstract source type, $\Local$ a finite local state type, and $\Ext$ an extension type. Assume:
+
+\begin{enumerate}[label=(\roman*)]
+\item an injective unit-step trajectory $n\mapsto\state_n$ in $Q$;
+\item a globally faithful representation $\Enc:Q\to\Local\times\Ext$;
+\item an autonomous local observation $\Obs:Q\to\Local$ intertwined with the unit transition;
+\item an injective local step map;
+\item agreement of $\Obs$ with the local component of $\Enc$;
+\item a nontrivial first local step, $\Obs(\state_1)\ne\Obs(\state_0)$.
+\end{enumerate}
+
+Then there exists a unique $b\in\N$ such that the full capstone certificate holds. In particular:
+
+\begin{enumerate}[label=(\alph*)]
+\item $b$ is the least positive local return and $b>1$;
+\item distinguishing information is forced into the extension component arbitrarily late along the trajectory;
+\item the local readout is $b$-periodic and depends only on the emergent residual;
+\item every $n\in\N$ has unique bounded cycle coordinates $n=qb+r$, $r<b$;
+\item the emergent cycle coordinates coincide downstream with positional digit/carry normalization;
+\item every $n\in\N$ has a unique finite canonical positional representation with digits $<b$ and no leading zero.
+\end{enumerate}
+\end{theorem}
+
+This is formalized in Lean by
+\texttt{existsUnique\_foundationalCapstone}.
+
+\section{Downstream classical crosswalks}
+
+Once the emergent coordinates have been constructed and their bounded decomposition proved unique, the standard quotient/remainder pair is shown to satisfy the same specification. Hence uniqueness yields
+\[
+ \Qe(n)=\left\lfloor\frac{n}{b}\right\rfloor,
+ \qquad
+ \Ree(n)=n\bmod b.
+\]
+Likewise, once the emergent digit list is intrinsically canonical,
+\[
+ \operatorname{EDig}_b(n)=\operatorname{Nat.digits}_b(n).
+\]
+
+These equalities are identification theorems, not definitions used to generate the emergent objects.
+
+\section{Related work}
+
+The theorem intersects several established literatures, but its logical direction differs from the usual setup.
+
+\subsection{Automata and arithmetic in numeration systems}
+
+Finite automata and transducers have long been used to study number representation, normalization, and addition in integer-base, real-base, and recurrence-based systems \cite{Frougny1992,Frougny1999,FrougnySakarovitch2010}. Those works normally begin with a numeration architecture---a base, recurrence, digit set, or representation language---and study the computational behavior of arithmetic inside it. The present work begins earlier in the logical chain: the finite capacity later serving as a radix is derived from local dynamics rather than supplied as part of the numeration system.
+
+\subsection{Abstract numeration systems}
+
+Abstract numeration systems encode integers by words in ordered languages, typically regular languages, and support a broad theory of recognizability and automaticity \cite{LecomteRigo2010,Rigo2014}. This framework is more general than fixed-radix notation, but a representation language over a finite alphabet is already part of the system. In contrast, no digit language is primitive in the capstone; the digit list is constructed only after the local return capacity and bounded cycle coordinates have been derived.
+
+\subsection{Canonical number systems}
+
+Canonical number-system theory studies finite and unique expansions for prescribed algebraic or polynomial bases and digit sets \cite{AkiyamaPetho2002,AkiyamaEtAl2004}. Our intrinsic uniqueness theorem reaches an analogous canonicality property for the external clock, but the direction is different: the base-like capacity is obtained dynamically before the finite expansion is constructed.
+
+\subsection{Odometers and dynamical numeration}
+
+Odometers provide a particularly close dynamical neighbor. Grabner, Liardet, and Tichy construct $G$-odometers from $G$-scale expansions, and the wider dynamical theory of numeration includes beta systems, abstract systems, shift radix systems, $G$-scales, and odometers \cite{GrabnerLiardetTichy1995,BaratBertheLiardetThuswaldner2006}. In that literature, the numeration system generates a successor dynamics. The present capstone reverses part of this direction: a constrained successor dynamics generates the fixed-capacity positional structure.
+
+\subsection{Carry propagation}
+
+Carry propagation has been studied algorithmically and probabilistically in standard and nonstandard digit systems \cite{Frougny1999,HeubergerKropfProdinger2017}. Berth{\'e}, Frougny, Rigo, and Sakarovitch study the carry propagation of the successor function across several classes of numeration systems \cite{BertheFrougnyRigoSakarovitch2020}. Their starting point is an existing numeration representation; the present work isolates an earlier structural event---the emergence of the reset-plus-transport boundary that is only later identified as carry.
+
+\subsection{Information-lossless finite-state coding}
+
+Information-lossless finite-state compression uses an injectivity/recoverability condition structurally related to our primitive notion of faithfulness; finite-state dimension can be characterized through information-lossless finite-state compressors \cite{DaiLathropLutzMayordomo2004}. The target problem is different, however: finite-state compression theory measures compressibility of sequences rather than deriving a numeral architecture from local finite-state persistence.
+
+\subsection{Periodic enumeration and positional equations}
+
+Manca's study of Archimedean periodic enumeration systems is the closest structural precedent found in this scoped review for deriving a positional equation from periodic organization \cite{Manca2024}. For a monotone enumeration system of period $p$, a recurrence of the form
+\[
+ \operatorname{value}(\alpha x)
+ =p\,\operatorname{value}(\alpha)+\operatorname{value}(x)
+\]
+leads to the usual positional expansion. The primitive system there already consists of finite symbols, strings, an append operation, monotonic enumeration, and a period $p$. The present capstone moves the period itself downstream: the capacity $b$ is first derived as the least positive return of finite autonomous injective local dynamics, after which digit coordinates and positional expansion are constructed.
+
+\subsection{Scoped novelty statement}
+
+The literature reviewed above contains many derivations and generalizations of positional formulas, numeration dynamics, automata for arithmetic, and carry behavior. We therefore do not claim that positional structure has never been derived from periodicity or dynamics. The narrower distinction supported by this review is the following:
+
+\begin{quote}
+Among the sources examined here, we did not find the same implication from the same primitive data: an abstract source trajectory with globally faithful split encoding and finite autonomous information-preserving local dynamics, from which the radix-like capacity itself is derived before quotient, remainder, digits, or carry are introduced.
+\end{quote}
+
+This is a scoped literature conclusion, not an exhaustive historical priority claim.
+
+\section{Non-circularity, scope, and non-claims}
+
+The theorem should be read with its boundaries intact.
+
+\begin{enumerate}[label=(\roman*)]
+\item It does not prove that every injective coding is positional.
+\item Faithfulness alone does not imply positional notation.
+\item The layered-depth branch does not currently derive the unit trajectory or autonomous local dynamics.
+\item A finite local system can have period one unless local nontriviality is imposed.
+\item The positional representation constructed here lives on the external clock $\N$ of the injective trajectory. No arithmetic on the abstract source type $Q$ is assumed or derived by the capstone.
+\item The literature review is scoped and does not support an unconditional claim of historical priority.
+\end{enumerate}
+
+These are not defects to be hidden; they identify the exact theorem proved and the principal directions for strengthening it.
+
+\section{Discussion and open problems}
+
+The formal chain suggests several next questions.
+
+\paragraph{Deriving the dynamic hypotheses.}
+Can `UnitTrajectory` and `AutonomousLocalDynamics` themselves be obtained from weaker principles of admissible change of representation, composition, or conservation of distinguishability?
+
+\paragraph{Internalizing the clock.}
+Can the external natural-number clock be replaced by an intrinsic ordered monoid or successor object on the quantity carrier, while preserving the construction of cycle coordinates and canonical expansion?
+
+\paragraph{Weakening local injectivity.}
+Injectivity of the local step is used to cancel recurrent prefixes and eliminate transient tails. Which weaker hypotheses---reversibility on the observed orbit, eventual bijectivity, or recurrence assumptions---suffice?
+
+\paragraph{Variable capacities.}
+The present capstone yields a fixed capacity $b$. Can analogous arguments derive mixed-radix, $G$-scale, or more general abstract numeration structures from nonstationary local dynamics?
+
+\paragraph{Formal comparison with odometers.}
+The reversal between ``numeration $\to$ odometer'' and ``operational dynamics $\to$ numeration'' deserves a precise equivalence theorem in the fixed-radix case.
+
+\section{Conclusion}
+
+A positional numeral system need not be inserted at the first line of the formal development. Under an explicit operational model, finite local capacity, persistent distinguishability, and autonomous injective unit-step dynamics force a unique nontrivial local return capacity. That capacity supports recursively generated cycle/residual coordinates, a reset-plus-transport boundary, hierarchical positional transport, finite expansion, and intrinsic canonical uniqueness. Classical quotient, remainder, digits, and carry normalization then appear as downstream identifications.
+
+The result is deliberately narrower than a universal characterization of representation. Its value is the exactness of the implication: every operational hypothesis is visible, every intermediate object is separately constructed, and the complete chain is checked by the Lean kernel.
+
+\appendix
+
+\section{Lean theorem map}
+
+The principal formal modules are:
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Mathematical role & Lean module / theorem \\
+\midrule
+Finite-state obstruction & \texttt{FiniteStateObstruction.lean} \\
+Information escape & \texttt{InformationEscape.lean} \\
+Unbounded finite-layer depth & \texttt{UnboundedExtension.lean}, \texttt{UnboundedPrefixDepth.lean} \\
+First distinguishing depth & \texttt{FirstDistinguishingDepth.lean} \\
+Unit trajectory recurrence & \texttt{UnitDynamicsLocalRecurrence.lean} \\
+Emergent capacity & \texttt{FirstLocalReturnCapacity.lean} \\
+Cycle decomposition & \texttt{EmergentCycleDecomposition.lean} \\
+Recursive $Q_b,R_b$ & \texttt{EmergentQuotientRemainder.lean} \\
+Classical QR crosswalk & \texttt{ClassicalQRCrosswalk.lean} \\
+Carry normalization bridge & \texttt{CarryGeometryNormalizationBridge.lean} \\
+Weighted transport & \texttt{EmergentWeightedPositionalTransport.lean} \\
+Finite expansion & \texttt{IteratedEmergentPositionalExpansion.lean} \\
+Canonical digit list & \texttt{CanonicalEmergentDigits.lean} \\
+Intrinsic uniqueness & \texttt{IntrinsicPositionalUniqueness.lean} \\
+Capstone & \texttt{FoundationalCapstone.lean} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The kernel-facing audit surface is \texttt{QuantityRepresentationFoundations/Audit.lean}.
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}
