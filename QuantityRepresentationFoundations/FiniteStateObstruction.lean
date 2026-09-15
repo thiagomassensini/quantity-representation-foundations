@@ -1,3 +1,4 @@
+import Mathlib.Basic.Finite.Prod
 import Mathlib.Data.Fintype.Pigeonhole
 
 /-!
