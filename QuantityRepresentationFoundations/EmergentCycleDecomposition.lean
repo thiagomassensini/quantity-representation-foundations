@@ -129,7 +129,6 @@ theorem existsUnique_cycleCoordinates
   intro coordinates hcoordinates
   rcases coordinates with ⟨q', r'⟩
   obtain ⟨hq, hr⟩ := cycleDecomposition_unique hcoordinates hqr
-  simp only [Prod.fst, Prod.snd] at hq hr ⊢
   rw [hq, hr]
 
 /--
@@ -163,7 +162,7 @@ theorem periodicReadout_depends_only_on_residual
     (hdecomp : IsCycleDecomposition b n q r) :
     readout n = readout r := by
   rcases hdecomp with ⟨hvalue, _⟩
-  rw [hvalue]
+  subst n
   induction q with
   | zero => simp
   | succ q ih =>
