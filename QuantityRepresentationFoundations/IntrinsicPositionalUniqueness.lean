@@ -69,32 +69,33 @@ theorem canonicalExpansion_eq_nil_of_value_zero
       simp at hcontr
 
 /--
-Intrinsic uniqueness of the canonical finite positional representation.
+Index-free intrinsic canonicity.
 
-Any finite list that has the correct value, uses only digits below the
-capacity, and has no leading zero is forced to be the independently constructed
-`emergentDigits` list.
+A canonical admissible list is exactly the emergent digit list of its own raw
+value.  Structural induction on the list is sufficient; no descent theorem,
+classical quotient/remainder, normalization, or `Nat.digits` is used.
 -/
-theorem intrinsicCanonicalExpansion_eq_emergentDigits
-    (b n : ℕ) (hb : 1 < b) (coefficients : List ℕ)
-    (hvalue : CarryGeometry.rawExpansionValue b coefficients = n)
-    (hdigits : ∀ digit ∈ coefficients,
-      CarryGeometry.IsAdmissibleDigit b digit)
-    (hleading : ∀ h : coefficients ≠ [], coefficients.getLast h ≠ 0) :
-    coefficients = emergentDigits b hb n := by
+theorem intrinsicCanonicalExpansion_eq_emergentDigits_of_value
+    (b : ℕ) (hb : 1 < b) :
+    ∀ coefficients : List ℕ,
+      (∀ digit ∈ coefficients,
+        CarryGeometry.IsAdmissibleDigit b digit) →
+      (∀ h : coefficients ≠ [], coefficients.getLast h ≠ 0) →
+      coefficients = emergentDigits b hb
+        (CarryGeometry.rawExpansionValue b coefficients) := by
   have hb0 : 0 < b := lt_trans Nat.zero_lt_one hb
-  induction coefficients generalizing n with
+  intro coefficients
+  induction coefficients with
   | nil =>
-      have hn0 : n = 0 := by
-        simpa [CarryGeometry.rawExpansionValue] using hvalue.symm
-      subst n
-      simp
+      intro _ _
+      simp [CarryGeometry.rawExpansionValue]
   | cons d tail ih =>
+      intro hdigits hleading
+      let n := CarryGeometry.rawExpansionValue b (d :: tail)
       have hn : n ≠ 0 := by
         intro hn0
-        subst n
         have hnil := canonicalExpansion_eq_nil_of_value_zero
-          b hb (d :: tail) hvalue hdigits hleading
+          b hb (d :: tail) hn0 hdigits hleading
         simp at hnil
       have hnpos : 0 < n := Nat.pos_of_ne_zero hn
       have hd : d < b := hdigits d (by simp)
@@ -109,12 +110,10 @@ theorem intrinsicCanonicalExpansion_eq_emergentDigits
         simpa [List.getLast_cons htail] using hlead
       have hsplit :
           n = CarryGeometry.rawExpansionValue b tail * b + d := by
-        calc
-          n = CarryGeometry.rawExpansionValue b (d :: tail) := hvalue.symm
-          _ = d + b * CarryGeometry.rawExpansionValue b tail := by
-            rfl
-          _ = CarryGeometry.rawExpansionValue b tail * b + d := by
-            ac_rfl
+        dsimp [n]
+        change d + b * CarryGeometry.rawExpansionValue b tail =
+          CarryGeometry.rawExpansionValue b tail * b + d
+        ac_rfl
       have hdecomp : IsCycleDecomposition b n
           (CarryGeometry.rawExpansionValue b tail) d :=
         ⟨hsplit, hd⟩
@@ -123,10 +122,14 @@ theorem intrinsicCanonicalExpansion_eq_emergentDigits
           CarryGeometry.rawExpansionValue b tail = emergentQuotient b n :=
         hcoords.1
       have hdigit : d = emergentRemainder b n := hcoords.2
+      have htailcanonical0 :
+          tail = emergentDigits b hb
+            (CarryGeometry.rawExpansionValue b tail) :=
+        ih htaildigits htailleading
       have htailcanonical :
-          tail = emergentDigits b hb (emergentQuotient b n) :=
-        ih (emergentQuotient b n)
-          htailvalue htaildigits htailleading
+          tail = emergentDigits b hb (emergentQuotient b n) := by
+        rw [← htailvalue]
+        exact htailcanonical0
       calc
         d :: tail =
             emergentRemainder b n ::
@@ -134,6 +137,24 @@ theorem intrinsicCanonicalExpansion_eq_emergentDigits
           rw [hdigit, htailcanonical]
         _ = emergentDigits b hb n :=
           (emergentDigits_of_pos b n hb hnpos).symm
+
+/--
+Intrinsic uniqueness of the canonical finite positional representation.
+
+Any finite list that has the correct value, uses only digits below the
+capacity, and has no leading zero is forced to be the independently constructed
+`emergentDigits` list.
+-/
+theorem intrinsicCanonicalExpansion_eq_emergentDigits
+    (b n : ℕ) (hb : 1 < b) (coefficients : List ℕ)
+    (hvalue : CarryGeometry.rawExpansionValue b coefficients = n)
+    (hdigits : ∀ digit ∈ coefficients,
+      CarryGeometry.IsAdmissibleDigit b digit)
+    (hleading : ∀ h : coefficients ≠ [], coefficients.getLast h ≠ 0) :
+    coefficients = emergentDigits b hb n := by
+  have hcanonical := intrinsicCanonicalExpansion_eq_emergentDigits_of_value
+    b hb coefficients hdigits hleading
+  simpa [hvalue] using hcanonical
 
 /--
 The intrinsic conditions characterize the emergent list uniquely.
