@@ -1,5 +1,7 @@
 # Quantity Representation Foundations
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22774108.svg)](https://doi.org/10.5281/zenodo.22774108)
+
 Lean 4 formalization of a rigidity principle for exact quantitative representation:
 
 > **Optimal lossless finite representation has no independent quantitative dynamics beyond the residual/carry tower, up to change of representation.**
@@ -322,10 +324,19 @@ It includes the universal capstone theorems:
 
 ---
 
-## Paper
+## Paper and archival release
 
-The `paper/` directory contains the manuscript infrastructure. The current paper predates the universal carry-collapse theorem and is being replaced by a new manuscript based on the theorem above.
+The `paper/` directory contains the current manuscript built around the universal carry-rigidity theorem:
 
-See:
-
+- [`paper/CONSERVATION_OF_QUANTITATIVE_INFORMATION.md`](paper/CONSERVATION_OF_QUANTITATIVE_INFORMATION.md)
+- [`paper/CONSERVATION_OF_QUANTITATIVE_INFORMATION.tex`](paper/CONSERVATION_OF_QUANTITATIVE_INFORMATION.tex)
+- [`paper/LITERATURE_REVIEW.md`](paper/LITERATURE_REVIEW.md)
 - [`paper/README.md`](paper/README.md)
+
+The archival research release is **v1.0.0**, deposited on Zenodo with DOI:
+
+**[10.5281/zenodo.22774108](https://doi.org/10.5281/zenodo.22774108)**
+
+Suggested citation:
+
+> Massensini, Thiago (2026). *Conservation of Quantitative Information under Change of Representation: Universal Carry Rigidity of Optimal Lossless Finite Quantity Codes* (Version 1.0.0). Zenodo. https://doi.org/10.5281/zenodo.22774108
