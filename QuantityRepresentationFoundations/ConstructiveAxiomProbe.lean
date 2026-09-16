@@ -2,6 +2,7 @@ import QuantityRepresentationFoundations.ConstructiveCarryRigidity
 import QuantityRepresentationFoundations.AxiomFreeCarryRigidityCore
 import QuantityRepresentationFoundations.PrimitiveAxiomFreeCarryRigidity
 import QuantityRepresentationFoundations.ConstructiveFiniteInverse
+import QuantityRepresentationFoundations.ConstructiveBijectiveCarryTower
 
 namespace QuantityRepresentationFoundations.ConstructiveAxiomProbe
 
@@ -91,7 +92,19 @@ info: 'QuantityRepresentationFoundations.PrimitiveCarry.Tower.collapses_to_carry
 #print axioms QuantityRepresentationFoundations.ConstructiveFiniteInverse.decode_encode
 #print axioms QuantityRepresentationFoundations.ConstructiveFiniteInverse.primitiveCodeWindowOfBijective
 
-/-! Finite-bijection boundary: can the explicit decoder be recovered without choice? -/
+/--
+info: 'QuantityRepresentationFoundations.ConstructiveFiniteInverse.primitiveCodeWindowOfBijective' does not depend on any axioms
+-/
+#guard_msgs in
+#print axioms QuantityRepresentationFoundations.ConstructiveFiniteInverse.primitiveCodeWindowOfBijective
+
+/-! Decoder-free tower: only bijective encoders plus decidable equality are supplied. -/
+
+#print axioms QuantityRepresentationFoundations.ConstructiveBijectiveCarryTower.Tower.level
+#print axioms QuantityRepresentationFoundations.ConstructiveBijectiveCarryTower.Tower.toPrimitiveTower
+#print axioms QuantityRepresentationFoundations.ConstructiveBijectiveCarryTower.Tower.collapses_to_carry
+
+/-! Finite-cardinality boundary in the legacy route. -/
 
 #print axioms QuantityRepresentationFoundations.LosslessCompressedWindow.card_eq_windowSize
 #print axioms QuantityRepresentationFoundations.LosslessCompressedWindow.encode_bijective
