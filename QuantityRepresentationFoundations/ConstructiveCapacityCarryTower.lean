@@ -12,8 +12,9 @@ This module replaces the legacy abstract cardinality budget
 
 The two injections give an injective self-map of `Fin N`.  The primitive finite
 pigeonhole theorem makes that self-map surjective without `Fintype.card`.
-Surjectivity of the encoder follows, decidable equality on the code type is
-recovered from the capacity embedding, and structural finite search constructs
+Consequently both representation maps saturate the finite capacity: the encoder
+and the capacity embedding are bijections.  Decidable equality on the code type
+is recovered from the capacity embedding, and structural finite search constructs
 the decoder.  The resulting exact codecs form the primitive carry tower.
 -/
 
@@ -63,24 +64,67 @@ theorem encodedSlots_injective
   apply tower.encode_injective k
   exact tower.capacityEmbed_injective k h
 
+/-- The encoded-slot self-map fills every available finite slot. -/
+theorem encodedSlots_surjective
+    (tower : Tower.{u} b) (k : ℕ) :
+    Function.Surjective
+      (fun n : PrimitiveCarry.WindowState b k =>
+        tower.capacityEmbed k (tower.encode k n)) :=
+  PrimitiveFinitePigeonhole.injective_implies_surjective
+    (fun n : PrimitiveCarry.WindowState b k =>
+      tower.capacityEmbed k (tower.encode k n))
+    (tower.encodedSlots_injective k)
+
+/-- The encoded-slot self-map is a permutation of the finite window. -/
+theorem encodedSlots_bijective
+    (tower : Tower.{u} b) (k : ℕ) :
+    Function.Bijective
+      (fun n : PrimitiveCarry.WindowState b k =>
+        tower.capacityEmbed k (tower.encode k n)) :=
+  ⟨tower.encodedSlots_injective k, tower.encodedSlots_surjective k⟩
+
 /--
-The encoder is automatically onto: the encoded-slot self-map is injective,
-hence surjective by the primitive finite pigeonhole theorem.
+The encoder is automatically onto: finite capacity leaves no room for a faithful
+representation to omit a code state.
 -/
 theorem encode_surjective
     (tower : Tower.{u} b) (k : ℕ) :
     Function.Surjective (tower.encode k) := by
   intro c
-  have hslots : Function.Surjective
-      (fun n : PrimitiveCarry.WindowState b k =>
-        tower.capacityEmbed k (tower.encode k n)) :=
-    PrimitiveFinitePigeonhole.injective_implies_surjective
-      (fun n : PrimitiveCarry.WindowState b k =>
-        tower.capacityEmbed k (tower.encode k n))
-      (tower.encodedSlots_injective k)
-  obtain ⟨n, hn⟩ := hslots (tower.capacityEmbed k c)
+  obtain ⟨n, hn⟩ :=
+    tower.encodedSlots_surjective k (tower.capacityEmbed k c)
   refine ⟨n, ?_⟩
   exact tower.capacityEmbed_injective k hn
+
+/-- Faithfulness plus explicit finite capacity forces the encoder to be exact. -/
+theorem encode_bijective
+    (tower : Tower.{u} b) (k : ℕ) :
+    Function.Bijective (tower.encode k) :=
+  ⟨tower.encode_injective k, tower.encode_surjective k⟩
+
+/-- Every finite capacity slot is occupied by some code state. -/
+theorem capacityEmbed_surjective
+    (tower : Tower.{u} b) (k : ℕ) :
+    Function.Surjective (tower.capacityEmbed k) := by
+  intro n
+  obtain ⟨m, hm⟩ := tower.encodedSlots_surjective k n
+  exact ⟨tower.encode k m, hm⟩
+
+/-- The capacity witness itself is therefore an exact finite reindexing. -/
+theorem capacityEmbed_bijective
+    (tower : Tower.{u} b) (k : ℕ) :
+    Function.Bijective (tower.capacityEmbed k) :=
+  ⟨tower.capacityEmbed_injective k, tower.capacityEmbed_surjective k⟩
+
+/--
+Constructive capacity saturation: neither side can contain unused states once
+faithful maps exist in both directions at the same finite capacity.
+-/
+theorem capacity_saturated
+    (tower : Tower.{u} b) (k : ℕ) :
+    Function.Bijective (tower.encode k) ∧
+      Function.Bijective (tower.capacityEmbed k) :=
+  ⟨tower.encode_bijective k, tower.capacityEmbed_bijective k⟩
 
 /-- Recover the exact primitive codec at one depth from faithfulness plus capacity. -/
 def level
