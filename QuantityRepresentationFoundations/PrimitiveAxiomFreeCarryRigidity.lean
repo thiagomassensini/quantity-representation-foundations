@@ -143,19 +143,6 @@ theorem iterate_mul_period
       rw [iterate_mul_period step z N hperiod q]
       exact hperiod
 
-/-- Explicit power factorization along ordered depths. -/
-theorem natPow_factor_of_le
-    (b k m : ℕ) (hkm : k ≤ m) :
-    ∃ q : ℕ, Nat.pow b m = Nat.pow b k * q := by
-  induction hkm with
-  | refl =>
-      exact ⟨1, (Nat.mul_one (Nat.pow b k)).symm⟩
-  | @step m hkm ih =>
-      obtain ⟨q, hq⟩ := ih
-      refine ⟨q * b, ?_⟩
-      change Nat.pow b m * b = Nat.pow b k * (q * b)
-      rw [hq, Nat.mul_assoc]
-
 /-- Canonical window at base `b`, depth `k`. -/
 def WindowState (b k : ℕ) := Fin (Nat.pow b k)
 
