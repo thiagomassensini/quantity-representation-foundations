@@ -4,10 +4,16 @@ import QuantityRepresentationFoundations.PrimitiveAxiomFreeCarryRigidity
 # Constructive finite inverse search
 
 This module isolates the remaining inverse-construction question from the carry
-geometry.  Given an encoder out of `Fin N`, decidable equality in the target,
+geometry. Given an encoder out of `Fin N`, decidable equality in the target,
 and a propositional proof of surjectivity, we search the finite source directly.
+
+A kernel-facing detail matters here: the generic numeral `0 : Fin N` is built
+through `Fin.ofNat`, hence through natural remainder. Since that library path
+carries logical dependencies in the current Lean environment, every finite zero
+below is constructed directly as a `Fin.mk` value instead.
+
 The decoder itself does not eliminate the existential surjectivity proof into
-`Type`: it is a closed recursive search with an explicit default.  Surjectivity
+`Type`: it is a closed recursive search with an explicit default. Surjectivity
 is used only to prove that the search cannot miss.
 -/
 
@@ -16,16 +22,21 @@ namespace ConstructiveFiniteInverse
 
 universe u
 
+/-- Explicit zero in the successor-sized finite window. -/
+def finZero (N : ℕ) : Fin (N + 1) :=
+  ⟨0, Nat.zero_lt_succ N⟩
+
 /--
-Search `Fin N` structurally.  At size `N+1`, test zero and then recurse through
-`Fin.succ : Fin N → Fin (N+1)`.
+Search `Fin N` structurally. At size `N+1`, test the explicitly constructed
+zero and then recurse through `Fin.succ : Fin N → Fin (N+1)`.
 -/
 def findPreimage {Code : Type u} [DecidableEq Code] :
     {N : ℕ} → (Fin N → Code) → Code → Option (Fin N)
   | 0, _encode, _c => none
   | N + 1, encode, c =>
-      if h0 : encode 0 = c then
-        some 0
+      let z : Fin (N + 1) := finZero N
+      if h0 : encode z = c then
+        some z
       else
         match findPreimage (fun i : Fin N => encode i.succ) c with
         | none => none
@@ -38,11 +49,12 @@ theorem findPreimage_sound {Code : Type u} [DecidableEq Code] :
   intro N
   induction N with
   | zero =>
-      intro encode c n h
+      intro encode c n _h
       exact Fin.elim0 n
   | succ N ih =>
       intro encode c n h
-      by_cases h0 : encode 0 = c
+      let z : Fin (N + 1) := finZero N
+      by_cases h0 : encode z = c
       · unfold findPreimage at h
         rw [dif_pos h0] at h
         cases h
@@ -71,8 +83,9 @@ theorem findPreimage_complete {Code : Type u} [DecidableEq Code] :
       exact Fin.elim0 n
   | succ N ih =>
       intro encode c hex
-      by_cases h0 : encode 0 = c
-      · refine ⟨0, ?_⟩
+      let z : Fin (N + 1) := finZero N
+      by_cases h0 : encode z = c
+      · refine ⟨z, ?_⟩
         unfold findPreimage
         rw [dif_pos h0]
       · have htail : ∃ i : Fin N, encode i.succ = c := by
@@ -87,7 +100,7 @@ theorem findPreimage_complete {Code : Type u} [DecidableEq Code] :
         rw [dif_neg h0, hj]
 
 /--
-Decoder obtained by finite search.  The fallback is computationally explicit;
+Decoder obtained by finite search. The fallback is computationally explicit;
 surjectivity will prove below that it is never used.
 -/
 def decode
