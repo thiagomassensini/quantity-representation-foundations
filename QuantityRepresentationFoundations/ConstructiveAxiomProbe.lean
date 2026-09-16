@@ -4,6 +4,7 @@ import QuantityRepresentationFoundations.PrimitiveAxiomFreeCarryRigidity
 import QuantityRepresentationFoundations.ConstructiveFiniteInverse
 import QuantityRepresentationFoundations.ConstructiveBijectiveCarryTower
 import QuantityRepresentationFoundations.PrimitiveFinitePigeonhole
+import QuantityRepresentationFoundations.ConstructiveCapacityCarryTower
 
 namespace QuantityRepresentationFoundations.ConstructiveAxiomProbe
 
@@ -116,6 +117,21 @@ info: 'QuantityRepresentationFoundations.PrimitiveFinitePigeonhole.injective_imp
 -/
 #guard_msgs in
 #print axioms QuantityRepresentationFoundations.PrimitiveFinitePigeonhole.injective_implies_surjective
+
+/-! Constructive finite-capacity route: faithful encoding plus explicit slots only. -/
+
+#print axioms QuantityRepresentationFoundations.ConstructiveCapacityCarryTower.decidableEqOfEmbedding
+#print axioms QuantityRepresentationFoundations.ConstructiveCapacityCarryTower.Tower.encodedSlots_injective
+#print axioms QuantityRepresentationFoundations.ConstructiveCapacityCarryTower.Tower.encode_surjective
+#print axioms QuantityRepresentationFoundations.ConstructiveCapacityCarryTower.Tower.level
+#print axioms QuantityRepresentationFoundations.ConstructiveCapacityCarryTower.Tower.toPrimitiveTower
+#print axioms QuantityRepresentationFoundations.ConstructiveCapacityCarryTower.Tower.collapses_to_carry
+
+/--
+info: 'QuantityRepresentationFoundations.ConstructiveCapacityCarryTower.Tower.collapses_to_carry' does not depend on any axioms
+-/
+#guard_msgs in
+#print axioms QuantityRepresentationFoundations.ConstructiveCapacityCarryTower.Tower.collapses_to_carry
 
 /-! Finite-cardinality boundary in the legacy route. -/
 
