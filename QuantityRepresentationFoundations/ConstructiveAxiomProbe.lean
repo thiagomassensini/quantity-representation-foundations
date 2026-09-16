@@ -1,6 +1,7 @@
 import QuantityRepresentationFoundations.ConstructiveCarryRigidity
 import QuantityRepresentationFoundations.AxiomFreeCarryRigidityCore
 import QuantityRepresentationFoundations.PrimitiveAxiomFreeCarryRigidity
+import QuantityRepresentationFoundations.ConstructiveFiniteInverse
 
 namespace QuantityRepresentationFoundations.ConstructiveAxiomProbe
 
@@ -79,6 +80,16 @@ info: 'QuantityRepresentationFoundations.PrimitiveCarry.Tower.collapses_to_carry
 -/
 #guard_msgs in
 #print axioms QuantityRepresentationFoundations.PrimitiveCarry.Tower.collapses_to_carry
+
+/-! Constructive finite inverse: recover an explicit decoder from finite search. -/
+
+#print axioms QuantityRepresentationFoundations.ConstructiveFiniteInverse.findPreimage
+#print axioms QuantityRepresentationFoundations.ConstructiveFiniteInverse.findPreimage_sound
+#print axioms QuantityRepresentationFoundations.ConstructiveFiniteInverse.findPreimage_complete
+#print axioms QuantityRepresentationFoundations.ConstructiveFiniteInverse.decode
+#print axioms QuantityRepresentationFoundations.ConstructiveFiniteInverse.encode_decode
+#print axioms QuantityRepresentationFoundations.ConstructiveFiniteInverse.decode_encode
+#print axioms QuantityRepresentationFoundations.ConstructiveFiniteInverse.primitiveCodeWindowOfBijective
 
 /-! Finite-bijection boundary: can the explicit decoder be recovered without choice? -/
 
