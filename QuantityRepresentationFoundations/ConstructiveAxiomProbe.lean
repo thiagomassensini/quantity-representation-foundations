@@ -32,6 +32,8 @@ structure TinyNatPow (b k : ℕ) (Code : Type u) where
 
 end QuantityRepresentationFoundations.ConstructiveAxiomProbe
 
+/-! Baseline probes explaining where the legacy `propext` trace comes from. -/
+
 #print axioms QuantityRepresentationFoundations.ConstructiveAxiomProbe.nat_rfl_probe
 #print axioms QuantityRepresentationFoundations.ConstructiveAxiomProbe.pow_notation_rfl_probe
 #print axioms QuantityRepresentationFoundations.ConstructiveAxiomProbe.nat_pow_rfl_probe
@@ -45,20 +47,34 @@ end QuantityRepresentationFoundations.ConstructiveAxiomProbe
 #print axioms QuantityRepresentationFoundations.AxiomFreeCarry.depthProjection_unique_pointwise
 #print axioms QuantityRepresentationFoundations.AxiomFreeCarry.Tower.collapses_to_carry
 
+/-! Primitive carry route: every declaration below is intended to have an empty axiom trace. -/
+
 #print axioms QuantityRepresentationFoundations.PrimitiveCarry.natPow_pos
+#print axioms QuantityRepresentationFoundations.PrimitiveCarry.natSucc_ne_zero
 #print axioms QuantityRepresentationFoundations.PrimitiveCarry.cycleSucc_of_lt
 #print axioms QuantityRepresentationFoundations.PrimitiveCarry.cycleSucc_of_not_lt
 #print axioms QuantityRepresentationFoundations.PrimitiveCarry.boundary_eq
 #print axioms QuantityRepresentationFoundations.PrimitiveCarry.cycleSucc_eq_zero_iff_carry
+#print axioms QuantityRepresentationFoundations.PrimitiveCarry.windowSuccessor_eq_zero_iff_carry
 #print axioms QuantityRepresentationFoundations.PrimitiveCarry.iterate_period
 #print axioms QuantityRepresentationFoundations.PrimitiveCarry.iterate_mul_period
-#print axioms QuantityRepresentationFoundations.PrimitiveCarry.natPow_factor_of_le
 #print axioms QuantityRepresentationFoundations.PrimitiveCarry.lower_period_over_upper_capacity
+#print axioms QuantityRepresentationFoundations.PrimitiveCarry.depthProjection_zero
 #print axioms QuantityRepresentationFoundations.PrimitiveCarry.depthProjection_commutes_successor
+#print axioms QuantityRepresentationFoundations.PrimitiveCarry.depthProjection_refl_pointwise
 #print axioms QuantityRepresentationFoundations.PrimitiveCarry.depthProjection_unique_pointwise
 #print axioms QuantityRepresentationFoundations.PrimitiveCarry.depthProjection_comp_pointwise
+#print axioms QuantityRepresentationFoundations.PrimitiveCarry.CodeWindow.encode_injective
+#print axioms QuantityRepresentationFoundations.PrimitiveCarry.CodeWindow.successor_encode
+#print axioms QuantityRepresentationFoundations.PrimitiveCarry.CodeWindow.wrap_iff_carry
+#print axioms QuantityRepresentationFoundations.PrimitiveCarry.CodeWindow.projection_zero
+#print axioms QuantityRepresentationFoundations.PrimitiveCarry.CodeWindow.projection_commutes_successor
 #print axioms QuantityRepresentationFoundations.PrimitiveCarry.CodeWindow.projection_unique_pointwise
+#print axioms QuantityRepresentationFoundations.PrimitiveCarry.CodeWindow.projection_refl_pointwise
+#print axioms QuantityRepresentationFoundations.PrimitiveCarry.CodeWindow.projection_comp_pointwise
 #print axioms QuantityRepresentationFoundations.PrimitiveCarry.Tower.collapses_to_carry
+
+/-! Library-source localization retained for reproducibility of the design choice. -/
 
 #print axioms dif_pos
 #print axioms dif_neg
@@ -74,7 +90,6 @@ end QuantityRepresentationFoundations.ConstructiveAxiomProbe
 #print axioms Nat.mod_eq_of_lt
 #print axioms Nat.mod_mod_of_dvd
 #print axioms Nat.mod_add_mod
-#print axioms Nat.mod_eq_of_lt
 
 #print axioms dvd_refl
 #print axioms dvd_mul_of_dvd_left
