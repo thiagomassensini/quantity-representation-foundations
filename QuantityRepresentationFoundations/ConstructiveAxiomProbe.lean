@@ -45,6 +45,10 @@ end QuantityRepresentationFoundations.ConstructiveAxiomProbe
 #print axioms QuantityRepresentationFoundations.AxiomFreeCarry.depthProjection_unique_pointwise
 #print axioms QuantityRepresentationFoundations.AxiomFreeCarry.Tower.collapses_to_carry
 
+#print axioms QuantityRepresentationFoundations.PrimitiveCarry.natPow_pos
+#print axioms QuantityRepresentationFoundations.PrimitiveCarry.cycleSucc_of_lt
+#print axioms QuantityRepresentationFoundations.PrimitiveCarry.cycleSucc_of_not_lt
+#print axioms QuantityRepresentationFoundations.PrimitiveCarry.boundary_eq
 #print axioms QuantityRepresentationFoundations.PrimitiveCarry.cycleSucc_eq_zero_iff_carry
 #print axioms QuantityRepresentationFoundations.PrimitiveCarry.iterate_period
 #print axioms QuantityRepresentationFoundations.PrimitiveCarry.iterate_mul_period
@@ -55,6 +59,13 @@ end QuantityRepresentationFoundations.ConstructiveAxiomProbe
 #print axioms QuantityRepresentationFoundations.PrimitiveCarry.depthProjection_comp_pointwise
 #print axioms QuantityRepresentationFoundations.PrimitiveCarry.CodeWindow.projection_unique_pointwise
 #print axioms QuantityRepresentationFoundations.PrimitiveCarry.Tower.collapses_to_carry
+
+#print axioms dif_pos
+#print axioms dif_neg
+#print axioms Nat.succ_ne_zero
+#print axioms Nat.ne_of_lt
+#print axioms Nat.lt_irrefl
+#print axioms Nat.mul_pos
 
 #print axioms Nat.mod_eq
 #print axioms Nat.modCore_eq
