@@ -88,3 +88,10 @@ end QuantityRepresentationFoundations.ConstructiveInfrastructureProbe
 #print axioms Nat.lt_of_succ_lt_succ
 #print axioms dite
 #print axioms ite
+
+/-! Slot-removal infrastructure for the primitive pigeonhole proof. -/
+#print axioms Fin.succAbove
+#print axioms Fin.predAbove
+#print axioms Fin.succAbove_right_injective
+#print axioms Fin.predAbove_succAbove
+#print axioms Fin.succAbove_predAbove
