@@ -80,6 +80,14 @@ info: 'QuantityRepresentationFoundations.PrimitiveCarry.Tower.collapses_to_carry
 #guard_msgs in
 #print axioms QuantityRepresentationFoundations.PrimitiveCarry.Tower.collapses_to_carry
 
+/-! Finite-bijection boundary: can the explicit decoder be recovered without choice? -/
+
+#print axioms QuantityRepresentationFoundations.LosslessCompressedWindow.card_eq_windowSize
+#print axioms QuantityRepresentationFoundations.LosslessCompressedWindow.encode_bijective
+#print axioms Fintype.card_le_of_injective
+#print axioms Fintype.bijective_iff_injective_and_card
+#print axioms Equiv.ofBijective
+
 /-! Library-source localization retained for reproducibility of the design choice. -/
 
 #print axioms dif_pos
