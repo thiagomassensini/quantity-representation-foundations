@@ -3,6 +3,7 @@ import QuantityRepresentationFoundations.AxiomFreeCarryRigidityCore
 import QuantityRepresentationFoundations.PrimitiveAxiomFreeCarryRigidity
 import QuantityRepresentationFoundations.ConstructiveFiniteInverse
 import QuantityRepresentationFoundations.ConstructiveBijectiveCarryTower
+import QuantityRepresentationFoundations.PrimitiveFinitePigeonhole
 
 namespace QuantityRepresentationFoundations.ConstructiveAxiomProbe
 
@@ -103,6 +104,18 @@ info: 'QuantityRepresentationFoundations.ConstructiveFiniteInverse.primitiveCode
 #print axioms QuantityRepresentationFoundations.ConstructiveBijectiveCarryTower.Tower.level
 #print axioms QuantityRepresentationFoundations.ConstructiveBijectiveCarryTower.Tower.toPrimitiveTower
 #print axioms QuantityRepresentationFoundations.ConstructiveBijectiveCarryTower.Tower.collapses_to_carry
+
+/-! Primitive finite pigeonhole route, avoiding abstract cardinality. -/
+
+#print axioms QuantityRepresentationFoundations.PrimitiveFinitePigeonhole.complementDecode
+#print axioms QuantityRepresentationFoundations.PrimitiveFinitePigeonhole.complementDecode_spec
+#print axioms QuantityRepresentationFoundations.PrimitiveFinitePigeonhole.injective_implies_surjective
+
+/--
+info: 'QuantityRepresentationFoundations.PrimitiveFinitePigeonhole.injective_implies_surjective' does not depend on any axioms
+-/
+#guard_msgs in
+#print axioms QuantityRepresentationFoundations.PrimitiveFinitePigeonhole.injective_implies_surjective
 
 /-! Finite-cardinality boundary in the legacy route. -/
 
