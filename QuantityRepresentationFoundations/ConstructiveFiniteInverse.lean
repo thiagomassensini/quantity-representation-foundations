@@ -12,6 +12,10 @@ through `Fin.ofNat`, hence through natural remainder. Since that library path
 carries logical dependencies in the current Lean environment, every finite zero
 below is constructed directly as a `Fin.mk` value instead.
 
+Likewise, the completeness proof avoids `Fin.cases`: its current library trace
+contains `propext`.  Instead we inspect the underlying natural value and rebuild
+the tail state explicitly.
+
 The decoder itself does not eliminate the existential surjectivity proof into
 `Type`: it is a closed recursive search with an explicit default. Surjectivity
 is used only to prove that the search cannot miss.
@@ -90,9 +94,27 @@ theorem findPreimage_complete {Code : Type u} [DecidableEq Code] :
         rw [dif_pos h0]
       · have htail : ∃ i : Fin N, encode i.succ = c := by
           obtain ⟨n, hn⟩ := hex
-          cases n using Fin.cases with
-          | zero => exact False.elim (h0 hn)
-          | succ i => exact ⟨i, hn⟩
+          cases hval : n.val with
+          | zero =>
+              have hnz : n = z := by
+                apply Fin.ext
+                change n.val = 0
+                exact hval
+              rw [hnz] at hn
+              exact False.elim (h0 hn)
+          | succ a =>
+              have hs : a + 1 < N + 1 := by
+                have hlt := n.isLt
+                rw [hval] at hlt
+                exact hlt
+              have ha : a < N := Nat.lt_of_succ_lt_succ hs
+              let i : Fin N := ⟨a, ha⟩
+              have hni : n = i.succ := by
+                apply Fin.ext
+                change n.val = a + 1
+                exact hval
+              rw [hni] at hn
+              exact ⟨i, hn⟩
         obtain ⟨i, hi⟩ := htail
         obtain ⟨j, hj⟩ := ih (fun q : Fin N => encode q.succ) c ⟨i, hi⟩
         refine ⟨j.succ, ?_⟩
