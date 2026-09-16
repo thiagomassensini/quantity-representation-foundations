@@ -74,6 +74,12 @@ end QuantityRepresentationFoundations.ConstructiveAxiomProbe
 #print axioms QuantityRepresentationFoundations.PrimitiveCarry.CodeWindow.projection_comp_pointwise
 #print axioms QuantityRepresentationFoundations.PrimitiveCarry.Tower.collapses_to_carry
 
+/--
+info: 'QuantityRepresentationFoundations.PrimitiveCarry.Tower.collapses_to_carry' does not depend on any axioms
+-/
+#guard_msgs in
+#print axioms QuantityRepresentationFoundations.PrimitiveCarry.Tower.collapses_to_carry
+
 /-! Library-source localization retained for reproducibility of the design choice. -/
 
 #print axioms dif_pos
