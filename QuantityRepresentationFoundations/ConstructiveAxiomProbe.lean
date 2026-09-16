@@ -4,6 +4,7 @@ import QuantityRepresentationFoundations.PrimitiveAxiomFreeCarryRigidity
 import QuantityRepresentationFoundations.ConstructiveFiniteInverse
 import QuantityRepresentationFoundations.ConstructiveBijectiveCarryTower
 import QuantityRepresentationFoundations.PrimitiveFinitePigeonhole
+import QuantityRepresentationFoundations.ConstructiveFiniteCapacityConservation
 import QuantityRepresentationFoundations.ConstructiveCapacityCarryTower
 
 namespace QuantityRepresentationFoundations.ConstructiveAxiomProbe
@@ -117,6 +118,23 @@ info: 'QuantityRepresentationFoundations.PrimitiveFinitePigeonhole.injective_imp
 -/
 #guard_msgs in
 #print axioms QuantityRepresentationFoundations.PrimitiveFinitePigeonhole.injective_implies_surjective
+
+/-! Generic finite-capacity conservation, before any positional specialization. -/
+
+#print axioms QuantityRepresentationFoundations.ConstructiveFiniteCapacityConservation.encodedSlots_injective
+#print axioms QuantityRepresentationFoundations.ConstructiveFiniteCapacityConservation.encodedSlots_surjective
+#print axioms QuantityRepresentationFoundations.ConstructiveFiniteCapacityConservation.encodedSlots_bijective
+#print axioms QuantityRepresentationFoundations.ConstructiveFiniteCapacityConservation.encode_surjective
+#print axioms QuantityRepresentationFoundations.ConstructiveFiniteCapacityConservation.slot_surjective
+#print axioms QuantityRepresentationFoundations.ConstructiveFiniteCapacityConservation.encode_bijective
+#print axioms QuantityRepresentationFoundations.ConstructiveFiniteCapacityConservation.slot_bijective
+#print axioms QuantityRepresentationFoundations.ConstructiveFiniteCapacityConservation.finite_capacity_conservation
+
+/--
+info: 'QuantityRepresentationFoundations.ConstructiveFiniteCapacityConservation.finite_capacity_conservation' does not depend on any axioms
+-/
+#guard_msgs in
+#print axioms QuantityRepresentationFoundations.ConstructiveFiniteCapacityConservation.finite_capacity_conservation
 
 /-! Constructive finite-capacity route: faithful encoding plus explicit slots only. -/
 
