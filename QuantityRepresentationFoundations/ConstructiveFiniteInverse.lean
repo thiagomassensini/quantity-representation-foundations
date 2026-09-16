@@ -44,11 +44,11 @@ theorem findPreimage_sound {Code : Type u} [DecidableEq Code] :
       intro encode c n h
       by_cases h0 : encode 0 = c
       · unfold findPreimage at h
-        rw [if_pos h0] at h
+        rw [dif_pos h0] at h
         cases h
         exact h0
       · unfold findPreimage at h
-        rw [if_neg h0] at h
+        rw [dif_neg h0] at h
         cases hrec : findPreimage (fun i : Fin N => encode i.succ) c with
         | none =>
             rw [hrec] at h
@@ -74,7 +74,7 @@ theorem findPreimage_complete {Code : Type u} [DecidableEq Code] :
       by_cases h0 : encode 0 = c
       · refine ⟨0, ?_⟩
         unfold findPreimage
-        rw [if_pos h0]
+        rw [dif_pos h0]
       · have htail : ∃ i : Fin N, encode i.succ = c := by
           obtain ⟨n, hn⟩ := hex
           cases n using Fin.cases with
@@ -84,7 +84,7 @@ theorem findPreimage_complete {Code : Type u} [DecidableEq Code] :
         obtain ⟨j, hj⟩ := ih (fun q : Fin N => encode q.succ) c ⟨i, hi⟩
         refine ⟨j.succ, ?_⟩
         unfold findPreimage
-        rw [if_neg h0, hj]
+        rw [dif_neg h0, hj]
 
 /--
 Decoder obtained by finite search.  The fallback is computationally explicit;
