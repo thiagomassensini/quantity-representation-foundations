@@ -84,5 +84,7 @@ end QuantityRepresentationFoundations.ConstructiveInfrastructureProbe
 #print axioms QuantityRepresentationFoundations.ConstructiveInfrastructureProbe.oneStepBool
 #print axioms QuantityRepresentationFoundations.ConstructiveInfrastructureProbe.oneStepBoolExplicit
 #print axioms Fin.succ
+#print axioms Fin.cases
+#print axioms Nat.lt_of_succ_lt_succ
 #print axioms dite
 #print axioms ite
