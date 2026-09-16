@@ -47,13 +47,16 @@ theorem succAbove_injective {N : ℕ}
   · rw [if_pos hi] at hij
     by_cases hj : j.castSucc < p
     · rw [if_pos hj] at hij
-      apply Fin.ext
-      exact congrArg Fin.val hij
+      have hv : i.val = j.val :=
+        congrArg (fun q : Fin (N + 1) => q.val) hij
+      exact Fin.ext hv
     · rw [if_neg hj] at hij
       exfalso
       apply hj
-      show j.val < p.val
-      have hv : i.val = j.val + 1 := congrArg Fin.val hij
+      change j.val < p.val
+      change i.val < p.val at hi
+      have hv : i.val = j.val + 1 :=
+        congrArg (fun q : Fin (N + 1) => q.val) hij
       rw [hv] at hi
       exact Nat.lt_trans (Nat.lt_succ_self j.val) hi
   · rw [if_neg hi] at hij
@@ -61,15 +64,17 @@ theorem succAbove_injective {N : ℕ}
     · rw [if_pos hj] at hij
       exfalso
       apply hi
-      show i.val < p.val
-      have hv : i.val + 1 = j.val := congrArg Fin.val hij
+      change i.val < p.val
+      change j.val < p.val at hj
+      have hv : i.val + 1 = j.val :=
+        congrArg (fun q : Fin (N + 1) => q.val) hij
       rw [← hv] at hj
       exact Nat.lt_trans (Nat.lt_succ_self i.val) hj
     · rw [if_neg hj] at hij
-      apply Fin.ext
-      have hv : i.val + 1 = j.val + 1 := congrArg Fin.val hij
+      have hv : i.val + 1 = j.val + 1 :=
+        congrArg (fun q : Fin (N + 1) => q.val) hij
       change Nat.succ i.val = Nat.succ j.val at hv
-      exact Nat.succ.inj hv
+      exact Fin.ext (Nat.succ.inj hv)
 
 /-- Every point other than the pivot is reached by raw `succAbove`. -/
 theorem exists_succAbove_eq_of_ne {N : ℕ}
