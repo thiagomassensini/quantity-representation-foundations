@@ -55,6 +55,12 @@ theorem boundary_eq
   · exact Nat.succ_le_of_lt n.isLt
   · exact Nat.le_of_not_gt h
 
+/-- Primitive successor numerals cannot equal zero, proved directly by constructor disjointness. -/
+theorem natSucc_ne_zero (n : ℕ) : n + 1 ≠ 0 := by
+  change Nat.succ n ≠ 0
+  intro h
+  exact Nat.noConfusion h
+
 /-- Carry at a finite window is the exact boundary event. -/
 def carry (N : ℕ) (n : Fin N) : Prop := n.val + 1 = N
 
@@ -67,7 +73,7 @@ theorem cycleSucc_eq_zero_iff_carry
     constructor
     · intro hz
       have hv : n.val + 1 = 0 := congrArg Fin.val hz
-      exact False.elim ((Nat.succ_ne_zero n.val) hv)
+      exact False.elim ((natSucc_ne_zero n.val) hv)
     · intro hc
       exact False.elim ((Nat.ne_of_lt h) hc)
   · rw [cycleSucc_of_not_lt N hN n h]
@@ -188,11 +194,14 @@ theorem lower_period_over_upper_capacity
     (b k m : ℕ) (hb : 0 < b) (hkm : k ≤ m) :
     iterate (windowSuccessor b k hb) (Nat.pow b m) (windowZero b k hb) =
       windowZero b k hb := by
-  obtain ⟨q, hfactor⟩ := natPow_factor_of_le b k m hkm
-  rw [hfactor]
-  exact iterate_mul_period
-    (windowSuccessor b k hb) (windowZero b k hb) (Nat.pow b k)
-    (iterate_period (Nat.pow b k) (natPow_pos hb k)) q
+  induction hkm with
+  | refl =>
+      exact iterate_period (Nat.pow b k) (natPow_pos hb k)
+  | @step m hkm ih =>
+      change iterate (windowSuccessor b k hb)
+          (Nat.pow b m * b) (windowZero b k hb) = windowZero b k hb
+      exact iterate_mul_period
+        (windowSuccessor b k hb) (windowZero b k hb) (Nat.pow b m) ih b
 
 /-- Dynamic projection commutes with unit successor. -/
 theorem depthProjection_commutes_successor
