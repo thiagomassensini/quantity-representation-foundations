@@ -20,7 +20,11 @@ def optionMap {α β : Type u} (f : α → β) : Option α → Option β
 /-- Successor embedding between adjacent `Fin` windows. -/
 def finSucc {N : ℕ} (i : Fin N) : Fin (N + 1) := i.succ
 
-/-- One finite search step without recursion. -/
+/-- Explicit zero of a nonempty `Fin`, avoiding the generic numeral instance. -/
+def finZero (N : ℕ) : Fin (N + 1) :=
+  ⟨0, Nat.zero_lt_succ N⟩
+
+/-- One finite search step using the generic `0 : Fin (N+1)` numeral. -/
 def oneStep {Code : Type u} [DecidableEq Code]
     {N : ℕ} (encode : Fin (N + 1) → Code) (c : Code)
     (tail : Option (Fin N)) : Option (Fin (N + 1)) :=
@@ -31,7 +35,19 @@ def oneStep {Code : Type u} [DecidableEq Code]
     | none => none
     | some i => some i.succ
 
-/-- One finite search step using a Boolean equality oracle rather than `DecidableEq`. -/
+/-- The same step with an explicitly constructed finite zero. -/
+def oneStepExplicit {Code : Type u} [DecidableEq Code]
+    {N : ℕ} (encode : Fin (N + 1) → Code) (c : Code)
+    (tail : Option (Fin N)) : Option (Fin (N + 1)) :=
+  let z : Fin (N + 1) := finZero N
+  if encode z = c then
+    some z
+  else
+    match tail with
+    | none => none
+    | some i => some i.succ
+
+/-- One finite search step using a Boolean equality oracle and a generic Fin numeral. -/
 def oneStepBool {Code : Type u}
     (eqb : Code → Code → Bool)
     {N : ℕ} (encode : Fin (N + 1) → Code) (c : Code)
@@ -43,14 +59,30 @@ def oneStepBool {Code : Type u}
     | none => none
     | some i => some i.succ
 
+/-- Boolean-oracle version with explicit finite zero. -/
+def oneStepBoolExplicit {Code : Type u}
+    (eqb : Code → Code → Bool)
+    {N : ℕ} (encode : Fin (N + 1) → Code) (c : Code)
+    (tail : Option (Fin N)) : Option (Fin (N + 1)) :=
+  let z : Fin (N + 1) := finZero N
+  if eqb (encode z) c then
+    some z
+  else
+    match tail with
+    | none => none
+    | some i => some i.succ
+
 end QuantityRepresentationFoundations.ConstructiveInfrastructureProbe
 
 #print axioms QuantityRepresentationFoundations.ConstructiveInfrastructureProbe.eqIf
 #print axioms QuantityRepresentationFoundations.ConstructiveInfrastructureProbe.eqDite
 #print axioms QuantityRepresentationFoundations.ConstructiveInfrastructureProbe.optionMap
 #print axioms QuantityRepresentationFoundations.ConstructiveInfrastructureProbe.finSucc
+#print axioms QuantityRepresentationFoundations.ConstructiveInfrastructureProbe.finZero
 #print axioms QuantityRepresentationFoundations.ConstructiveInfrastructureProbe.oneStep
+#print axioms QuantityRepresentationFoundations.ConstructiveInfrastructureProbe.oneStepExplicit
 #print axioms QuantityRepresentationFoundations.ConstructiveInfrastructureProbe.oneStepBool
+#print axioms QuantityRepresentationFoundations.ConstructiveInfrastructureProbe.oneStepBoolExplicit
 #print axioms Fin.succ
 #print axioms dite
 #print axioms ite
