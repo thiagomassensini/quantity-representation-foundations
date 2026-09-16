@@ -40,6 +40,9 @@ theorem succAbove_injective {N : ℕ}
     Function.Injective (fun i : Fin N => p.succAbove i) := by
   intro i j hij
   unfold Fin.succAbove at hij
+  change
+    (if i.castSucc < p then i.castSucc else i.succ) =
+      (if j.castSucc < p then j.castSucc else j.succ) at hij
   by_cases hi : i.castSucc < p
   · rw [if_pos hi] at hij
     by_cases hj : j.castSucc < p
