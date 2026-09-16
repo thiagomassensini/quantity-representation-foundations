@@ -201,17 +201,15 @@ theorem depthProjection_commutes_successor
     depthProjection b k m hb (windowSuccessor b m hb n) =
       windowSuccessor b k hb (depthProjection b k m hb n) := by
   by_cases hnext : n.val + 1 < Nat.pow b m
-  · have hs := cycleSucc_of_lt (Nat.pow b m) (natPow_pos hb m) n hnext
-    change iterate (windowSuccessor b k hb)
-        (windowSuccessor b m hb n).val (windowZero b k hb) = _
+  · have hs : windowSuccessor b m hb n = ⟨n.val + 1, hnext⟩ := by
+      exact cycleSucc_of_lt (Nat.pow b m) (natPow_pos hb m) n hnext
+    unfold depthProjection
     rw [hs]
     rfl
-  · have hs := cycleSucc_of_not_lt (Nat.pow b m) (natPow_pos hb m) n hnext
+  · have hs : windowSuccessor b m hb n = windowZero b m hb := by
+      exact cycleSucc_of_not_lt (Nat.pow b m) (natPow_pos hb m) n hnext
     have hboundary : n.val + 1 = Nat.pow b m := boundary_eq n hnext
-    change iterate (windowSuccessor b k hb)
-        (windowSuccessor b m hb n).val (windowZero b k hb) =
-      windowSuccessor b k hb
-        (iterate (windowSuccessor b k hb) n.val (windowZero b k hb))
+    unfold depthProjection
     rw [hs]
     change windowZero b k hb =
       iterate (windowSuccessor b k hb) (n.val + 1) (windowZero b k hb)
