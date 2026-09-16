@@ -1,21 +1,21 @@
-import QuantityRepresentationFoundations.PrimitiveFinitePigeonhole
+import QuantityRepresentationFoundations.ConstructiveFiniteCapacityConservation
 import QuantityRepresentationFoundations.ConstructiveFiniteInverse
 
 /-!
 # Constructive capacity carry tower
 
-This module replaces the legacy abstract cardinality budget
-`Fintype.card Code ≤ N` by explicit finite data:
+This module specializes the generic constructive finite-capacity conservation
+principle to positional windows `Fin (Nat.pow b k)`.
 
-* a faithful encoder `Fin N → Code`;
-* a faithful capacity embedding `Code → Fin N`.
+At each depth it assumes only:
 
-The two injections give an injective self-map of `Fin N`.  The primitive finite
-pigeonhole theorem makes that self-map surjective without `Fintype.card`.
-Consequently both representation maps saturate the finite capacity: the encoder
-and the capacity embedding are bijections.  Decidable equality on the code type
-is recovered from the capacity embedding, and structural finite search constructs
-the decoder.  The resulting exact codecs form the primitive carry tower.
+* a faithful encoder from the positional window into a code type;
+* a faithful placement of code states back into the same finite window.
+
+Generic finite-capacity conservation forces both maps to be bijections.  The
+capacity embedding also gives decidable equality on the code type, structural
+finite search reconstructs the decoder, and the exact codecs are promoted to
+the primitive carry tower.
 -/
 
 namespace QuantityRepresentationFoundations
@@ -34,9 +34,9 @@ def decidableEqOfEmbedding
       isFalse (fun hab => h (congrArg slot hab))
 
 /--
-A finite representation tower specified by a faithful encoder and an explicit
-capacity embedding at every depth.  No decoder, surjectivity proof, cardinality
-computation, or decidable equality on the code type is supplied.
+A positional representation tower specified only by faithful maps in both
+directions at every finite depth.  No decoder, surjectivity proof, abstract
+cardinality computation, or decidable equality on the code type is supplied.
 -/
 structure Tower (b : ℕ) where
   Code : ℕ → Type u
@@ -54,77 +54,79 @@ def decEq (tower : Tower.{u} b) (k : ℕ) : DecidableEq (tower.Code k) :=
   decidableEqOfEmbedding
     (tower.capacityEmbed k) (tower.capacityEmbed_injective k)
 
-/-- Encoding followed by the capacity embedding is a faithful self-map. -/
+/-- Encoding followed by the capacity embedding is faithful. -/
 theorem encodedSlots_injective
     (tower : Tower.{u} b) (k : ℕ) :
     Function.Injective
       (fun n : PrimitiveCarry.WindowState b k =>
-        tower.capacityEmbed k (tower.encode k n)) := by
-  intro a b' h
-  apply tower.encode_injective k
-  exact tower.capacityEmbed_injective k h
+        tower.capacityEmbed k (tower.encode k n)) :=
+  ConstructiveFiniteCapacityConservation.encodedSlots_injective
+    (tower.encode k) (tower.encode_injective k)
+    (tower.capacityEmbed k) (tower.capacityEmbed_injective k)
 
-/-- The encoded-slot self-map fills every available finite slot. -/
+/-- Generic finite-capacity conservation fills every positional slot. -/
 theorem encodedSlots_surjective
     (tower : Tower.{u} b) (k : ℕ) :
     Function.Surjective
       (fun n : PrimitiveCarry.WindowState b k =>
         tower.capacityEmbed k (tower.encode k n)) :=
-  PrimitiveFinitePigeonhole.injective_implies_surjective
-    (fun n : PrimitiveCarry.WindowState b k =>
-      tower.capacityEmbed k (tower.encode k n))
-    (tower.encodedSlots_injective k)
+  ConstructiveFiniteCapacityConservation.encodedSlots_surjective
+    (tower.encode k) (tower.encode_injective k)
+    (tower.capacityEmbed k) (tower.capacityEmbed_injective k)
 
-/-- The encoded-slot self-map is a permutation of the finite window. -/
+/-- The encoded-slot self-map is a permutation of the positional window. -/
 theorem encodedSlots_bijective
     (tower : Tower.{u} b) (k : ℕ) :
     Function.Bijective
       (fun n : PrimitiveCarry.WindowState b k =>
         tower.capacityEmbed k (tower.encode k n)) :=
-  ⟨tower.encodedSlots_injective k, tower.encodedSlots_surjective k⟩
+  ConstructiveFiniteCapacityConservation.encodedSlots_bijective
+    (tower.encode k) (tower.encode_injective k)
+    (tower.capacityEmbed k) (tower.capacityEmbed_injective k)
 
-/--
-The encoder is automatically onto: finite capacity leaves no room for a faithful
-representation to omit a code state.
--/
+/-- The positional encoder is automatically onto. -/
 theorem encode_surjective
     (tower : Tower.{u} b) (k : ℕ) :
-    Function.Surjective (tower.encode k) := by
-  intro c
-  obtain ⟨n, hn⟩ :=
-    tower.encodedSlots_surjective k (tower.capacityEmbed k c)
-  refine ⟨n, ?_⟩
-  exact tower.capacityEmbed_injective k hn
+    Function.Surjective (tower.encode k) :=
+  ConstructiveFiniteCapacityConservation.encode_surjective
+    (tower.encode k) (tower.encode_injective k)
+    (tower.capacityEmbed k) (tower.capacityEmbed_injective k)
 
 /-- Faithfulness plus explicit finite capacity forces the encoder to be exact. -/
 theorem encode_bijective
     (tower : Tower.{u} b) (k : ℕ) :
     Function.Bijective (tower.encode k) :=
-  ⟨tower.encode_injective k, tower.encode_surjective k⟩
+  ConstructiveFiniteCapacityConservation.encode_bijective
+    (tower.encode k) (tower.encode_injective k)
+    (tower.capacityEmbed k) (tower.capacityEmbed_injective k)
 
-/-- Every finite capacity slot is occupied by some code state. -/
+/-- Every positional capacity slot is occupied by some code state. -/
 theorem capacityEmbed_surjective
     (tower : Tower.{u} b) (k : ℕ) :
-    Function.Surjective (tower.capacityEmbed k) := by
-  intro n
-  obtain ⟨m, hm⟩ := tower.encodedSlots_surjective k n
-  exact ⟨tower.encode k m, hm⟩
+    Function.Surjective (tower.capacityEmbed k) :=
+  ConstructiveFiniteCapacityConservation.slot_surjective
+    (tower.encode k) (tower.encode_injective k)
+    (tower.capacityEmbed k) (tower.capacityEmbed_injective k)
 
-/-- The capacity witness itself is therefore an exact finite reindexing. -/
+/-- The capacity witness itself is an exact finite reindexing. -/
 theorem capacityEmbed_bijective
     (tower : Tower.{u} b) (k : ℕ) :
     Function.Bijective (tower.capacityEmbed k) :=
-  ⟨tower.capacityEmbed_injective k, tower.capacityEmbed_surjective k⟩
+  ConstructiveFiniteCapacityConservation.slot_bijective
+    (tower.encode k) (tower.encode_injective k)
+    (tower.capacityEmbed k) (tower.capacityEmbed_injective k)
 
 /--
-Constructive capacity saturation: neither side can contain unused states once
-faithful maps exist in both directions at the same finite capacity.
+Positional specialization of constructive finite-capacity conservation: neither
+side contains unused states.
 -/
 theorem capacity_saturated
     (tower : Tower.{u} b) (k : ℕ) :
     Function.Bijective (tower.encode k) ∧
       Function.Bijective (tower.capacityEmbed k) :=
-  ⟨tower.encode_bijective k, tower.capacityEmbed_bijective k⟩
+  ConstructiveFiniteCapacityConservation.finite_capacity_conservation
+    (tower.encode k) (tower.encode_injective k)
+    (tower.capacityEmbed k) (tower.capacityEmbed_injective k)
 
 /-- Recover the exact primitive codec at one depth from faithfulness plus capacity. -/
 def level
